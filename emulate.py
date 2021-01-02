@@ -34,14 +34,23 @@ def schedule_strategy(strategy):
     scheduler.start()
 
 
+# Emulate entry point
 if __name__ == "__main__":
+    # Set logging
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
+    # Load configuration file
     with open('./config.json') as f:
         config = json.load(f)
 
+    # Load trading bot
     bot = EmulateBot(config)
+
+    # Load strategy
     strategy = VegasTunnel(bot)
 
+    # Schedule performance calculation
     schedule_perf_calculation()
+
+    # Schedule strategy
     schedule_strategy(strategy)

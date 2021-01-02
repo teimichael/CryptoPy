@@ -7,7 +7,7 @@ from binance_data import DataClient
 from dateutil.tz import tzutc
 
 
-def get_data(base: str, quote: str, time_frame: str, start_date: str, end_date: str, raw_data_dir: str):
+def get_raw_data(base: str, quote: str, time_frame: str, start_date: str, end_date: str, raw_data_dir: str):
     futures = True
     client = DataClient(futures=futures)
     pair_list = client.get_binance_pairs(base_currencies=[base], quote_currencies=[quote])
@@ -44,14 +44,36 @@ if __name__ == '__main__':
     # Load configuration file
     with open('./backtest_config.json') as f:
         config = json.load(f)
+
+    # Raw data directory
     raw_data_dir = config['raw_data_dir']
+
+    # Clean data directory
     data_dir = config['data_dir']
+
+    # Base currency
     base = 'USDT'
+
+    # Quote currency
     quote = 'BTC'
-    symbol = quote + base
+
+    # Time frame (interval)
     time_frame = '15m'
+
+    # Start date
     start_date = '01/01/2018'
+
+    # End date
     end_date = '01/01/2021'
-    get_data(base, quote, time_frame, start_date, end_date, raw_data_dir)
+
+    # Trading symbol (pair)
+    symbol = quote + base
+
+    # Get raw data
+    get_raw_data(base, quote, time_frame, start_date, end_date, raw_data_dir)
+
+    # Check integrity
     integrity_check(symbol, time_frame, raw_data_dir)
+
+    # Clean data
     data_cleaning(symbol, time_frame, raw_data_dir, data_dir)

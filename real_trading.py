@@ -3,6 +3,7 @@ import logging
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+from bot.real_bot import RealBot
 from bot.emulate_bot import EmulateBot
 from strategy.VegasTunnel import VegasTunnel
 
@@ -27,6 +28,7 @@ def set_logging():
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
+# Real-trading entry
 if __name__ == "__main__":
     # Set logging
     set_logging()
@@ -36,6 +38,7 @@ if __name__ == "__main__":
         config = json.load(f)
 
     # Load trading bot
+    # bot = RealBot(config)  # Uncomment this to run real bot for trading when everything is ready.
     bot = EmulateBot(config)
 
     # Load strategy

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     # Raise file not found error
     history = pd.read_csv(f'{config["data_dir"]}{config["pair"]}_{config["interval"]}.csv')
 
-    # Load trading bot (long position)
+    # Load trading bot
     bot = BackTestBot(history, config['balance'], config['trade_leverage'],
                       config['max_leverage'],
                       config['taker_fee'], config['maker_fee'])

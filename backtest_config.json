@@ -1,0 +1,13 @@
+{
+  "pair": "BTCUSDT",
+  "start_time": "2020-12-01 00:00:00",
+  "end_time": "2020-12-31 00:00:00",
+  "interval": "1h",
+  "data_dir": "./data/",
+  "raw_data_dir": "./data/binance/futures/",
+  "balance": 1.0,
+  "trade_leverage": 1,
+  "max_leverage": 100,
+  "taker_fee": 0.04,
+  "maker_fee": 0.02
+}

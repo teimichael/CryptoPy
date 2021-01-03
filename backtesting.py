@@ -58,5 +58,8 @@ if __name__ == "__main__":
     # Output order history
     bot.output_order_history()
 
-    # Get performance
+    # Output performance
     bot.output_performance()
+
+    # Buy & hold
+

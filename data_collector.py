@@ -58,13 +58,13 @@ if __name__ == '__main__':
     quote = 'BTC'
 
     # Time frame (interval)
-    time_frame = '15m'
+    time_frame = '1h'
 
     # Start date
     start_date = '01/01/2018'
 
     # End date
-    end_date = '01/01/2021'
+    end_date = '01/03/2021'
 
     # Trading symbol (pair)
     symbol = quote + base

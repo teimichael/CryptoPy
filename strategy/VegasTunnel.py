@@ -25,6 +25,9 @@ class VegasTunnel(object):
     # Indicator length limit (Reserve last __indicator_limit elements)
     __indicator_length_limit = 10
 
+    # Max number of open orders (included)
+    __max_open_order = 10
+
     def __init__(self, bot):
         self.__bot = bot
 
@@ -36,6 +39,11 @@ class VegasTunnel(object):
     # Long-term 1
     def __long_term_1(self, i: Indicator):
         if self.__crossed_below(i.ema144, i.ema36) and i.macd_dif > 0:
+            # Check whether reached max number of open orders to prevent overbuying
+            if self.__reached_max_open_order():
+                logging.info("Cannot open long-term long strategy 1: reached max number of open orders.")
+                return
+
             # TODO make a suitable order
             logging.info("Open long-term long strategy 1.")
             order = self.__bot.buy_market(self.__symbol, self.__amount)
@@ -52,6 +60,11 @@ class VegasTunnel(object):
     # Long-term 2
     def __long_term_2(self, i: Indicator):
         if self.__crossed_below(i.low, i.ema576) and i.macd_dif > 0 and i.ema169[-1] > i.ema576[-1]:
+            # Check whether reached max number of open orders to prevent overbuying
+            if self.__reached_max_open_order():
+                logging.info("Cannot open long-term long strategy 2: reached max number of open orders.")
+                return
+
             # TODO make a suitable order
             logging.info("Open long-term long strategy 2.")
             order = self.__bot.buy_market(self.__symbol, self.__amount)
@@ -74,6 +87,11 @@ class VegasTunnel(object):
     # Mid-term 1
     def __mid_term_1(self, i: Indicator):
         if self.__crossed_above(i.low, i.ema144) and i.macd_dif > 0 and i.ema144[-1] > i.ema676[-1]:
+            # Check whether reached max number of open orders to prevent overbuying
+            if self.__reached_max_open_order():
+                logging.info("Cannot open mid-term long strategy 1: reached max number of open orders.")
+                return
+
             # TODO make a suitable order
             logging.info("Open mid-term long strategy 1.")
             order = self.__bot.buy_market(self.__symbol, self.__amount)
@@ -96,6 +114,16 @@ class VegasTunnel(object):
     # Short-term 1
     def __short_term_1(self, i: Indicator):
         if self.__crossed_below(i.low, i.ema36) and i.macd_dif > 0 and i.ema36[-1] > i.ema169[-1]:
+            # Check whether reached max number of open orders to prevent overbuying
+            if self.__reached_max_open_order():
+                logging.info("Cannot open short-term long strategy 1: reached max number of open orders.")
+                return
+
+            # Limit max number of short-term open orders to avoid short-term fluctuation
+            if len(self.__short_term_1_order) >= 5:
+                logging.info("Cannot open short-term long strategy 1: reached max number of short-term open orders.")
+                return
+
             # TODO make a suitable order
             logging.info("Open short-term long strategy 1.")
             order = self.__bot.buy_market(self.__symbol, self.__amount)
@@ -141,6 +169,15 @@ class VegasTunnel(object):
 
         # Short-term long strategy 1
         self.__short_term_1(indicator)
+
+    # Reached max number of open orders
+    def __reached_max_open_order(self):
+        return self.__count_current_open_orders() > self.__max_open_order
+
+    # Total number of current open orders
+    def __count_current_open_orders(self):
+        return len(self.__long_term_1_order) + len(self.__long_term_2_order) + len(self.__mid_term_1_order) + len(
+            self.__short_term_1_order)
 
     @staticmethod
     def __crossed_above(s1, s2) -> bool:

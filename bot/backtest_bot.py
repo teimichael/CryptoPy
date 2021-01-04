@@ -7,6 +7,7 @@ from core.performance import get_performance
 from core.util import str_to_timestamp
 
 
+# Backtesting Bot
 # TODO considering balance
 class BackTestBot(object):
     def __init__(self, history, balance: float = 1.0,

@@ -4,6 +4,7 @@ import json
 import ccxt
 
 
+# Real-Trading Bot
 class RealBot(object):
 
     def __init__(self, config):
@@ -44,22 +45,22 @@ class RealBot(object):
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> dict:
         o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
-        logging.info(o)
+        logging.info(json.dumps(o))
         return o
 
     def buy_market(self, symbol: str, amount: float) -> dict:
         o = self.exchange.create_order(symbol, 'market', 'buy', amount)
-        logging.info(o)
+        logging.info(json.dumps(o))
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> dict:
         o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
-        logging.info(o)
+        logging.info(json.dumps(o))
         return o
 
     def sell_market(self, symbol: str, amount: float) -> dict:
         o = self.exchange.create_order(symbol, 'market', 'sell', amount)
-        logging.info(o)
+        logging.info(json.dumps(o))
         return o
 
     def buy_stop_loss(self, symbol: str, amount: float, price: float):
@@ -92,5 +93,4 @@ class RealBot(object):
             'totalCrossUnPnl': balance['totalCrossUnPnl'],
             'availableBalance': balance['availableBalance']
         }
-        b = json.dumps(b)
-        logging.info(b)
+        logging.info(json.dumps(b))

@@ -5,7 +5,7 @@ from core import trade_lib as tl
 from strategy.Indicator import Indicator
 
 
-# Vegas Tunnel Strategy
+# Vegas Tunnel Strategy (long)
 class VegasTunnel(object):
     # Pair
     __symbol = 'BTC/USDT'

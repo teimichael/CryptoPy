@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -37,7 +38,9 @@ def schedule_strategy(strategy):
 # Emulate entry point
 if __name__ == "__main__":
     # Set logging
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+    log_name = 'log_' + str(datetime.now().date()) + '.log'
+    logging.basicConfig(filename=log_name,
+                        filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
 
     # Load configuration file
     with open('./config.json') as f:

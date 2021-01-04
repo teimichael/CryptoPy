@@ -54,6 +54,20 @@ class BackTestBot(object):
             r[0] = int(r[0])
         return h
 
+    def get_ticker(self, symbol: str) -> dict:
+        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
+        assert len(i) == 1
+        return dict(
+            symbol=symbol,
+            last=self.__history.iloc[i[0]]['Open'],
+            timestamp=self.__current_time
+        )
+
+    def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
+        o = Order(symbol, 'limit', 'buy', amount, price, self.__current_time)
+        self.__order_history.append(o)
+        return o
+
     def buy_market(self, symbol: str, amount: float) -> Order:
         i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
         assert len(i) == 1
@@ -61,6 +75,11 @@ class BackTestBot(object):
         # Assume market price is close to the open price of the next record
         # TODO Check whether balance is enough to buy
         o = Order(symbol, 'market', 'buy', amount, self.__history.iloc[i[0]]['Open'], self.__current_time)
+        self.__order_history.append(o)
+        return o
+
+    def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
+        o = Order(symbol, 'limit', 'sell', amount, price, self.__current_time)
         self.__order_history.append(o)
         return o
 

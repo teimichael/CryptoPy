@@ -73,6 +73,10 @@ class EmulateBot(object):
         logging.info('sell (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
+    def cancel_open_orders(self, symbol: str):
+        # Do nothing in emulation
+        return
+
     def output_performance(self):
         perf = get_performance(self.__order_history)
         perf = json.dumps(perf.__dict__)

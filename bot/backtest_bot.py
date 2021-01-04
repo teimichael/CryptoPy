@@ -92,6 +92,10 @@ class BackTestBot(object):
         self.__order_history.append(o)
         return o
 
+    def cancel_open_orders(self, symbol: str):
+        # Do nothing in backtesting
+        return
+
     def output_order_history(self):
         logging.info('Order history')
         for o in self.__order_history:

@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 
 import ccxt
 
@@ -78,6 +78,20 @@ class RealBot(object):
     def sell_take_profit(self, symbol: str, amount: float, price: float):
         take_profit_params = {'stopPrice': price}
         return self.exchange.create_order(symbol, 'take_profit_market', 'sell', amount, None, take_profit_params)
+
+    def get_open_orders(self, symbol: str):
+        if self.exchange.has['fetchOpenOrders']:
+            return self.exchange.fetchOpenOrders(symbol)
+        else:
+            return None
+
+    def cancel_open_orders(self, symbol: str):
+        open_orders = self.get_open_orders(symbol)
+        if open_orders is None:
+            return
+        for o in open_orders:
+            self.exchange.cancel_order(o['id'], symbol)
+            logging.info('Canceled unfilled order ' + o['id'])
 
     def output_balance(self):
         balance = self.get_balance()

@@ -161,6 +161,9 @@ class VegasTunnel(object):
         log_time = (str(current_time) + ' ') if not (current_time is None) else ''
         logging.info(log_time + "Executing Vegas Tunnel Strategy.")
 
+        # Cancel open orders
+        self.__bot.cancel_open_orders(self.__symbol)
+
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
 

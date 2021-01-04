@@ -31,16 +31,24 @@ class RealBot(object):
         return self.exchange.fetch_ticker(symbol)
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> dict:
-        return self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
+        o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
+        logging.info(o)
+        return o
 
     def buy_market(self, symbol: str, amount: float) -> dict:
-        return self.exchange.create_order(symbol, 'market', 'buy', amount)
+        o = self.exchange.create_order(symbol, 'market', 'buy', amount)
+        logging.info(o)
+        return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> dict:
-        return self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
+        o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
+        logging.info(o)
+        return o
 
     def sell_market(self, symbol: str, amount: float) -> dict:
-        return self.exchange.create_order(symbol, 'market', 'sell', amount)
+        o = self.exchange.create_order(symbol, 'market', 'sell', amount)
+        logging.info(o)
+        return o
 
     def buy_stop_loss(self, symbol: str, amount: float, price: float):
         stop_loss_params = {'stopPrice': price}

@@ -83,6 +83,14 @@ fully implemented. Please know exactly what you are doing.
 
 [ccxt](https://github.com/ccxt/ccxt)
 
+## Command
+
+### Run
+
+```
+python(3) <data_collector.py | backtesting.py | emulate.py | real_trading.py>
+```
+
 ## Reference
 
 - https://github.com/ccxt/ccxt

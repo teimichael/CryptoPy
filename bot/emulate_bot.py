@@ -41,7 +41,10 @@ class EmulateBot(object):
         return self.exchange.fetch_ticker(symbol)
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
-        return Order(symbol, 'limit', 'buy', amount, price)
+        o = Order(symbol, 'limit', 'buy', amount, price)
+        self.__order_history.append(o)
+        logging.info('buy (' + str(amount) + ') at (' + str(price) + ')')
+        return o
 
     def buy_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)
@@ -51,7 +54,10 @@ class EmulateBot(object):
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
-        return Order(symbol, 'limit', 'sell', amount, price)
+        o = Order(symbol, 'limit', 'sell', amount, price)
+        self.__order_history.append(o)
+        logging.info('sell (' + str(amount) + ') at (' + str(price) + ')')
+        return o
 
     def sell_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)

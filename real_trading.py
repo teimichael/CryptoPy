@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -25,7 +26,9 @@ def schedule_strategy(strategy):
 
 
 def set_logging():
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+    log_name = 'log_' + str(datetime.now().date()) + '.log'
+    logging.basicConfig(filename=log_name,
+                        filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
 # Real-trading entry

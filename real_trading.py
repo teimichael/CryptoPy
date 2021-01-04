@@ -3,10 +3,18 @@ import logging
 from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from bot.real_bot import RealBot
 from bot.emulate_bot import EmulateBot
 from strategy.VegasTunnel import VegasTunnel
+
+
+# Schedule balance log
+def schedule_balance_log(bot):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(bot.output_balance, 'cron', minute='*/15', second='30')
+    scheduler.start()
 
 
 # Schedule strategy
@@ -17,10 +25,10 @@ def schedule_strategy(strategy):
     # scheduler.add_job(job, 'cron', hour='*/1', second='10')
 
     # Per 15 minutes (offset 3 seconds)
-    # scheduler.add_job(strategy.run, 'cron', minute='*/15', second='3')
+    scheduler.add_job(strategy.run, 'cron', minute='*/15', second='3')
 
     # Every 3 seconds for test
-    scheduler.add_job(strategy.run, 'interval', seconds=3)
+    # scheduler.add_job(strategy.run, 'interval', seconds=3)
 
     scheduler.start()
 
@@ -46,6 +54,9 @@ if __name__ == "__main__":
 
     # Load strategy
     strategy = VegasTunnel(bot)
+
+    # Schedule balance log
+    schedule_balance_log(bot)
 
     # Schedule strategy
     schedule_strategy(strategy)

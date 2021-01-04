@@ -10,7 +10,7 @@ from strategy.VegasTunnel import VegasTunnel
 
 
 # Calculate performance
-def schedule_perf_calculation():
+def schedule_perf_calculation(bot):
     # Schedule recording performance
     scheduler = BackgroundScheduler()
     scheduler.add_job(bot.output_performance, 'cron', minute='*/15', second='30')
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     strategy = VegasTunnel(bot)
 
     # Schedule performance calculation
-    schedule_perf_calculation()
+    schedule_perf_calculation(bot)
 
     # Schedule strategy
     schedule_strategy(strategy)

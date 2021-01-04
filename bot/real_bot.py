@@ -1,4 +1,5 @@
 import logging
+import json
 
 import ccxt
 
@@ -16,6 +17,10 @@ class RealBot(object):
                 'defaultType': 'future',
             },
         })
+
+        # Load markets
+        markets = self.exchange.load_markets()
+
         logging.info("REAL Bot created.")
 
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:
@@ -26,6 +31,13 @@ class RealBot(object):
 
     def get_ohlcv_range(self, symbol: str, timeframe: str, start: int, end: int) -> dict:
         return self.exchange.fetch_ohlcv(symbol, timeframe, params={'startTime': start, 'endTime': end})
+
+    def get_balance(self) -> dict:
+        return self.exchange.fetch_balance()['info']
+
+    def get_positions(self) -> list:
+        balance = self.exchange.fetch_balance()
+        return balance['info']['positions']
 
     def get_ticker(self, symbol: str) -> dict:
         return self.exchange.fetch_ticker(symbol)
@@ -65,3 +77,20 @@ class RealBot(object):
     def sell_take_profit(self, symbol: str, amount: float, price: float):
         take_profit_params = {'stopPrice': price}
         return self.exchange.create_order(symbol, 'take_profit_market', 'sell', amount, None, take_profit_params)
+
+    def output_balance(self):
+        balance = self.get_balance()
+        b = {
+            'totalWalletBalance': balance['totalWalletBalance'],
+            'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
+            'totalMarginBalance': balance['totalMarginBalance'],
+            'totalInitialMargin': balance['totalInitialMargin'],
+            'totalMaintMargin': balance['totalMaintMargin'],
+            'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
+            'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
+            'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
+            'totalCrossUnPnl': balance['totalCrossUnPnl'],
+            'availableBalance': balance['availableBalance']
+        }
+        b = json.dumps(b)
+        logging.info(b)

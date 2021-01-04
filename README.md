@@ -30,7 +30,7 @@ to [binance_data](https://github.com/uneasyguy/binance_data).
 
 ### Dependency
 
-[binance-data 0.1.6](https://pypi.org/project/binance-data/0.1.6/)
+[binance-data](https://pypi.org/project/binance-data/0.1.6/)
 
 ## Strategy
 
@@ -46,6 +46,8 @@ Write your strategy here.
 ### Dependency
 
 [TA-Lib](https://mrjbq7.github.io/ta-lib/)
+
+Please check the [official document](https://mrjbq7.github.io/ta-lib/install.html) to install TA-Lib.
 
 ## Backtesting
 

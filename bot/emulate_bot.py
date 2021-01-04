@@ -22,6 +22,9 @@ class EmulateBot(object):
             },
         })
 
+        # Load markets
+        markets = self.exchange.load_markets()
+
         self.__order_history = []
         logging.info("Emulate bot created.")
 
@@ -34,8 +37,12 @@ class EmulateBot(object):
     def get_ohlcv_range(self, symbol: str, timeframe: str, start: int, end: int) -> dict:
         return self.exchange.fetch_ohlcv(symbol, timeframe, params={'startTime': start, 'endTime': end})
 
-    def get_balance(self):
-        return self.exchange.fetch_balance()
+    def get_balance(self) -> dict:
+        return self.exchange.fetch_balance()['info']
+
+    def get_positions(self) -> list:
+        balance = self.exchange.fetch_balance()
+        return balance['info']['positions']
 
     def get_ticker(self, symbol: str):
         return self.exchange.fetch_ticker(symbol)
@@ -70,3 +77,20 @@ class EmulateBot(object):
         perf = get_performance(self.__order_history)
         perf = json.dumps(perf.__dict__)
         logging.info(perf)
+
+    def output_balance(self):
+        balance = self.get_balance()
+        b = {
+            'totalWalletBalance': balance['totalWalletBalance'],
+            'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
+            'totalMarginBalance': balance['totalMarginBalance'],
+            'totalInitialMargin': balance['totalInitialMargin'],
+            'totalMaintMargin': balance['totalMaintMargin'],
+            'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
+            'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
+            'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
+            'totalCrossUnPnl': balance['totalCrossUnPnl'],
+            'availableBalance': balance['availableBalance']
+        }
+        b = json.dumps(b)
+        logging.info(b)

@@ -47,17 +47,14 @@ class VegasTunnel(object):
                 logging.info("Cannot open long-term long strategy 1: reached max number of open orders.")
                 return
 
-            # TODO make a suitable order
             logging.info("Open long-term long strategy 1.")
-            # order = self.__bot.buy_market(self.__symbol, self.__amount)
-            ticker = self.__bot.get_ticker(self.__symbol)
-            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
-            self.__long_term_1_order.append(order)
+            order = self.__buy()
+            if order is not None:
+                self.__long_term_1_order.append(order)
         elif len(self.__long_term_1_order) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Close long-term long strategy 1.")
 
-                # TODO make a suitable order
                 for o in self.__long_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__long_term_1_order = []
@@ -70,23 +67,20 @@ class VegasTunnel(object):
                 logging.info("Cannot open long-term long strategy 2: reached max number of open orders.")
                 return
 
-            # TODO make a suitable order
             logging.info("Open long-term long strategy 2.")
-            # order = self.__bot.buy_market(self.__symbol, self.__amount)
-            ticker = self.__bot.get_ticker(self.__symbol)
-            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
-            self.__long_term_2_order.append(order)
+            order = self.__buy()
+            if order is not None:
+                self.__long_term_2_order.append(order)
         elif len(self.__long_term_2_order) > 0:
             if i.macd_dif < 0 or i.ema169[-1] < i.ema676[-1]:
                 logging.info("Close long-term long strategy 2.")
-                # TODO make a suitable order
+
                 for o in self.__long_term_2_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__long_term_2_order = []
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close long-term long strategy 2.")
 
-                # TODO make a suitable order
                 for o in self.__long_term_2_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__long_term_2_order = []
@@ -99,23 +93,20 @@ class VegasTunnel(object):
                 logging.info("Cannot open mid-term long strategy 1: reached max number of open orders.")
                 return
 
-            # TODO make a suitable order
             logging.info("Open mid-term long strategy 1.")
-            # order = self.__bot.buy_market(self.__symbol, self.__amount)
-            ticker = self.__bot.get_ticker(self.__symbol)
-            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
-            self.__mid_term_1_order.append(order)
+            order = self.__buy()
+            if order is not None:
+                self.__mid_term_1_order.append(order)
         elif len(self.__mid_term_1_order) > 0:
             if i.macd_dif < 0 or i.ema144[-1] < i.ema676[-1]:
                 logging.info("Close mid-term long strategy 1.")
-                # TODO make a suitable order
+
                 for o in self.__mid_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__mid_term_1_order = []
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close mid-term long strategy 1.")
 
-                # TODO make a suitable order
                 for o in self.__mid_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__mid_term_1_order = []
@@ -133,24 +124,20 @@ class VegasTunnel(object):
                 logging.info("Cannot open short-term long strategy 1: reached max number of short-term open orders.")
                 return
 
-            # TODO make a suitable order
             logging.info("Open short-term long strategy 1.")
-            # order = self.__bot.buy_market(self.__symbol, self.__amount)
-            ticker = self.__bot.get_ticker(self.__symbol)
-            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
-            self.__short_term_1_order.append(order)
+            order = self.__buy()
+            if order is not None:
+                self.__short_term_1_order.append(order)
         elif len(self.__short_term_1_order) > 0:
             if i.macd_dif < 0 or i.ema36[-1] < i.ema169[-1]:
                 logging.info("Close short-term long strategy 1.")
 
-                # TODO make a suitable order
                 for o in self.__short_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__short_term_1_order = []
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close short-term long strategy 1.")
 
-                # TODO make a suitable order
                 for o in self.__short_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__short_term_1_order = []
@@ -162,7 +149,7 @@ class VegasTunnel(object):
         logging.info(log_time + "Executing Vegas Tunnel Strategy.")
 
         # Cancel open orders
-        self.__bot.cancel_open_orders(self.__symbol)
+        self.__bot.cancel_open_orders(self.__symbol, self.__max_open_order)
 
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
@@ -183,6 +170,16 @@ class VegasTunnel(object):
 
         # Short-term long strategy 1
         self.__short_term_1(indicator)
+
+    # Buy order
+    # TODO make a suitable order
+    def __buy(self):
+        ticker = self.__bot.get_ticker(self.__symbol)
+        if ticker is None:
+            order = self.__bot.buy_market(self.__symbol, self.__amount)
+        else:
+            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
+        return order
 
     # Reached max number of open orders
     def __reached_max_open_order(self):

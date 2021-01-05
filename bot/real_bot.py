@@ -25,41 +25,75 @@ class RealBot(object):
         logging.info("REAL Bot created.")
 
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:
-        if limit is None:
-            return self.exchange.fetch_ohlcv(symbol, timeframe)
-        else:
-            return self.exchange.fetch_ohlcv(symbol, timeframe, params={'limit': limit})
+        try:
+            rec = self.__fetch_ohlcv(symbol, timeframe, limit)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            rec = self.__fetch_ohlcv(symbol, timeframe, limit)
+        return rec
 
+    # TODO No use
     def get_ohlcv_range(self, symbol: str, timeframe: str, start: int, end: int) -> dict:
         return self.exchange.fetch_ohlcv(symbol, timeframe, params={'startTime': start, 'endTime': end})
 
     def get_balance(self) -> dict:
-        return self.exchange.fetch_balance()['info']
+        try:
+            balance = self.exchange.fetch_balance()
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            balance = self.exchange.fetch_balance()
+
+        return balance['info'] if balance is not None else None
 
     def get_positions(self) -> list:
-        balance = self.exchange.fetch_balance()
-        return balance['info']['positions']
+        try:
+            balance = self.exchange.fetch_balance()
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            balance = self.exchange.fetch_balance()
+        return balance['info']['positions'] if balance is not None else None
 
     def get_ticker(self, symbol: str) -> dict:
-        return self.exchange.fetch_ticker(symbol)
+        try:
+            ticker = self.exchange.fetch_ticker(symbol)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            ticker = self.exchange.fetch_ticker(symbol)
+        return ticker
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> dict:
-        o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
+        try:
+            o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price)
         logging.info(json.dumps(o))
         return o
 
     def buy_market(self, symbol: str, amount: float) -> dict:
-        o = self.exchange.create_order(symbol, 'market', 'buy', amount)
+        try:
+            o = self.exchange.create_order(symbol, 'market', 'buy', amount)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'market', 'buy', amount)
         logging.info(json.dumps(o))
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> dict:
-        o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
+        try:
+            o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
         logging.info(json.dumps(o))
         return o
 
     def sell_market(self, symbol: str, amount: float) -> dict:
-        o = self.exchange.create_order(symbol, 'market', 'sell', amount)
+        try:
+            o = self.exchange.create_order(symbol, 'market', 'sell', amount)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'market', 'sell', amount)
         logging.info(json.dumps(o))
         return o
 
@@ -79,32 +113,54 @@ class RealBot(object):
         take_profit_params = {'stopPrice': price}
         return self.exchange.create_order(symbol, 'take_profit_market', 'sell', amount, None, take_profit_params)
 
-    def get_open_orders(self, symbol: str):
-        if self.exchange.has['fetchOpenOrders']:
-            return self.exchange.fetchOpenOrders(symbol)
-        else:
-            return None
+    def get_open_orders(self, symbol: str, limit: int = None):
+        try:
+            orders = self.__fetch_open_orders(symbol, limit)
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            orders = self.__fetch_open_orders(symbol, limit)
+        return orders
 
-    def cancel_open_orders(self, symbol: str):
-        open_orders = self.get_open_orders(symbol)
-        if open_orders is None:
+    def cancel_open_orders(self, symbol: str, limit: int = None):
+        open_orders = self.get_open_orders(symbol, limit)
+        if open_orders is None or len(open_orders) == 0:
             return
         for o in open_orders:
-            self.exchange.cancel_order(o['id'], symbol)
+            try:
+                self.exchange.cancel_order(o['id'], symbol)
+            except ccxt.NetworkError as e:
+                logging.info('Network error: ', str(e))
+                self.exchange.cancel_order(o['id'], symbol)
             logging.info('Canceled unfilled order ' + o['id'])
 
     def output_balance(self):
         balance = self.get_balance()
-        b = {
-            'totalWalletBalance': balance['totalWalletBalance'],
-            'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
-            'totalMarginBalance': balance['totalMarginBalance'],
-            'totalInitialMargin': balance['totalInitialMargin'],
-            'totalMaintMargin': balance['totalMaintMargin'],
-            'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
-            'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
-            'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
-            'totalCrossUnPnl': balance['totalCrossUnPnl'],
-            'availableBalance': balance['availableBalance']
-        }
-        logging.info(json.dumps(b))
+        if balance is not None:
+            b = {
+                'totalWalletBalance': balance['totalWalletBalance'],
+                'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
+                'totalMarginBalance': balance['totalMarginBalance'],
+                'totalInitialMargin': balance['totalInitialMargin'],
+                'totalMaintMargin': balance['totalMaintMargin'],
+                'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
+                'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
+                'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
+                'totalCrossUnPnl': balance['totalCrossUnPnl'],
+                'availableBalance': balance['availableBalance']
+            }
+            logging.info(json.dumps(b))
+        else:
+            logging.info('Cannot fetch balance due to exceptions.')
+
+    def __fetch_ohlcv(self, symbol: str, timeframe: str, limit: int = None):
+        if limit is None:
+            return self.exchange.fetch_ohlcv(symbol, timeframe)
+        else:
+            return self.exchange.fetch_ohlcv(symbol, timeframe, params={'limit': limit})
+
+    def __fetch_open_orders(self, symbol: str, limit: int = None):
+        if self.exchange.has['fetchOpenOrders']:
+            if limit is None:
+                return self.exchange.fetchOpenOrders(symbol=symbol)
+            else:
+                return self.exchange.fetchOpenOrders(symbol=symbol, limit=limit)

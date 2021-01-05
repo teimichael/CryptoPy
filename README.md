@@ -23,10 +23,12 @@ RESULTS.
 
 ## Data Collector
 
-> data_collector.py
+> - backtest_config.json: configuration file
+> - data_collector.py: entry point
 
-Collect OHLCV records from Binance. For more information, please refer
-to [binance_data](https://github.com/uneasyguy/binance_data).
+Collect OHLCV records from Binance. Notice that *start_date* and *end_date* are set with UTC.
+
+For more information, please refer to [binance_data](https://github.com/uneasyguy/binance_data).
 
 ### Dependency
 
@@ -54,7 +56,7 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 > - backtest_config.json: configuration file
 > - backtesting.py: entry script
 
-Currently support *1h* and *15m*.
+Currently support *1h* and *15m*. Notice that *start_date* and *end_date* are set with local timezone.
 
 ## Real-Time Emulation
 

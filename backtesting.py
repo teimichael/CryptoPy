@@ -6,7 +6,7 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.VegasTunnel import VegasTunnel
+from strategy.VegasTunnelLong import VegasTunnelLong
 
 
 def test_1h(start: datetime, end: datetime):
@@ -34,8 +34,8 @@ if __name__ == "__main__":
         config = json.load(f)
 
     # Load history records
-    # Raise file not found error
-    history = pd.read_csv(f'{config["data_dir"]}{config["pair"]}_{config["interval"]}.csv')
+    # TODO Raise file not found error
+    history = pd.read_csv(f'{config["data"]["clean_data_dir"]}{config["pair"]}_{config["interval"]}.csv')
 
     # Load trading bot
     bot = BackTestBot(history, config['balance'], config['trade_leverage'],
@@ -43,7 +43,7 @@ if __name__ == "__main__":
                       config['taker_fee'], config['maker_fee'])
 
     # Load strategy
-    strategy = VegasTunnel(bot)
+    strategy = VegasTunnelLong(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])

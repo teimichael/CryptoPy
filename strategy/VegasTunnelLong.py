@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.Indicator import Indicator
+from strategy.VTLIndicator import Indicator
 
 
 # Vegas Tunnel Strategy (long)
-class VegasTunnel(object):
+class VegasTunnelLong(object):
     # Pair
     __symbol = 'BTC/USDT'
 
@@ -29,7 +29,7 @@ class VegasTunnel(object):
     __max_open_order = 10
 
     # Slippage rate allowed while buying
-    __slippage_buy = 1.0001
+    __slippage_buy = 1 + 0.00008
 
     def __init__(self, bot):
         self.__bot = bot
@@ -104,12 +104,12 @@ class VegasTunnel(object):
                 for o in self.__mid_term_1_order:
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__mid_term_1_order = []
-            elif self.__crossed_below(i.close, i.bbUpper * 0.999):
-                logging.info("Close mid-term long strategy 1.")
-
-                for o in self.__mid_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
-                self.__mid_term_1_order = []
+            # elif self.__crossed_below(i.close, i.bbUpper * 0.999):
+            #     logging.info("Close mid-term long strategy 1.")
+            #
+            #     for o in self.__mid_term_1_order:
+            #         order = self.__bot.sell_market(self.__symbol, self.__amount)
+            #     self.__mid_term_1_order = []
 
     # Short-term 1
     def __short_term_1(self, i: Indicator):

@@ -100,8 +100,8 @@ class BackTestBot(object):
         logging.info('Order history')
         for o in self.__order_history:
             logging.info(
-                str(datetime.fromtimestamp(o.timestamp / 1000)) + ' ' + o.side + ' (' + str(o.amount) + ') at (' + str(
-                    o.price) + ')')
+                str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
+                    o['amount']) + ') at (' + str(o['price']) + ')')
 
     def output_performance(self):
         perf = get_performance(self.__order_history)

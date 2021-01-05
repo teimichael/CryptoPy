@@ -1,13 +1,13 @@
 # Order model
-class Order:
-
-    def __init__(self, symbol, type, side, amount, price=None, timestamp=None):
-        self.symbol = symbol
-        self.type = type
-        self.side = side
-        self.amount = amount
-        self.price = price
-        self.timestamp = timestamp
+def Order(symbol: str, type: str, side: str, amount: float, price=None, timestamp=None) -> dict:
+    return {
+        'symbol': symbol,
+        'type': type,
+        'side': side,
+        'amount': amount,
+        'price': price,
+        'timestamp': timestamp
+    }
 
 
 # Performance information model

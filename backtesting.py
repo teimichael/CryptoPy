@@ -6,6 +6,7 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
+from strategy.BBShortTerm import BBShortTerm
 from strategy.VegasTunnelLong import VegasTunnelLong
 
 
@@ -24,6 +25,13 @@ def test_15m(start: datetime, end: datetime):
         bot.set_current_time(current)
         strategy.run(current)
 
+
+def test_3m(start: datetime, end: datetime):
+    times = (end - start).days * 24 * 20 + 1
+    for i in range(times):
+        current = start + timedelta(minutes=i * 3)
+        bot.set_current_time(current)
+        strategy.run(current)
 
 if __name__ == "__main__":
     # Set logging
@@ -44,6 +52,7 @@ if __name__ == "__main__":
 
     # Load strategy
     strategy = VegasTunnelLong(bot)
+    # strategy = BBShortTerm(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])
@@ -54,6 +63,8 @@ if __name__ == "__main__":
         test_1h(start, end)
     elif config['interval'] == '15m':
         test_15m(start, end)
+    elif config['interval'] == '3m':
+        test_3m(start, end)
 
     # Output order history
     bot.output_order_history()

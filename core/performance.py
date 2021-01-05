@@ -18,29 +18,29 @@ def get_performance(orders) -> PerfInfo:
     for o in orders:
         # First order determines position type
         if position_type is None:
-            position_type = 'long' if o.side == 'buy' else 'short'
-        if o.side == 'buy' and position_type == 'long':
+            position_type = 'long' if o['side'] == 'buy' else 'short'
+        if o['side'] == 'buy' and position_type == 'long':
             # Calculate total value
-            total = entry_price * long_amount + o.amount * o.price
+            total = entry_price * long_amount + o['amount'] * o['price']
             # Increase amount
-            long_amount += o.amount
+            long_amount += o['amount']
             # Liquidate entry price
             entry_price = total / long_amount
-        elif o.side == 'sell' and position_type == 'long':
-            if long_amount > o.amount:
+        elif o['side'] == 'sell' and position_type == 'long':
+            if long_amount > o['amount']:
                 # Close long partially
-                pnl = (o.price - entry_price) * o.amount
-                long_amount -= o.amount
-            elif long_amount == o.amount:
+                pnl = (o['price'] - entry_price) * o['amount']
+                long_amount -= o['amount']
+            elif long_amount == o['amount']:
                 # Close long totally
-                pnl = (o.price - entry_price) * long_amount
+                pnl = (o['price'] - entry_price) * long_amount
                 long_amount = 0
                 position_type = None
             else:
                 # Close long totally and open short
-                pnl = (o.price - entry_price) * long_amount
+                pnl = (o['price'] - entry_price) * long_amount
                 long_amount = 0
-                short_amount = o.amount - long_amount
+                short_amount = o['amount'] - long_amount
                 position_type = 'short'
             # Calculate statistics
             if pnl > 0:
@@ -50,28 +50,28 @@ def get_performance(orders) -> PerfInfo:
                 perf.long_gross_loss -= pnl
                 perf.loss_long += 1
 
-        elif o.side == 'sell' and position_type == 'short':
+        elif o['side'] == 'sell' and position_type == 'short':
             # Calculate total value
-            total = entry_price * short_amount + o.amount * o.price
+            total = entry_price * short_amount + o['amount'] * o['price']
             # Increase amount
-            short_amount += o.amount
+            short_amount += o['amount']
             # Liquidate entry price
             entry_price = total / short_amount
-        elif o.side == 'buy' and position_type == 'short':
-            if short_amount > o.amount:
+        elif o['side'] == 'buy' and position_type == 'short':
+            if short_amount > o['amount']:
                 # Close short partially
-                pnl = (entry_price - o.price) * o.amount
-                short_amount -= o.amount
-            elif short_amount == o.amount:
+                pnl = (entry_price - o['price']) * o['amount']
+                short_amount -= o['amount']
+            elif short_amount == o['amount']:
                 # Close short totally
-                pnl = (entry_price - o.price) * short_amount
+                pnl = (entry_price - o['price']) * short_amount
                 short_amount = 0
                 position_type = None
             else:
                 # Close short totally and open long
-                pnl = (entry_price - o.price) * short_amount
+                pnl = (entry_price - o['price']) * short_amount
                 short_amount = 0
-                long_amount = o.amount - short_amount
+                long_amount = o['amount'] - short_amount
                 position_type = 'long'
             # Calculate statistics
             if pnl > 0:

@@ -6,7 +6,6 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.BBShortTerm import BBShortTerm
 from strategy.VegasTunnelLong import VegasTunnelLong
 
 
@@ -33,6 +32,7 @@ def test_3m(start: datetime, end: datetime):
         bot.set_current_time(current)
         strategy.run(current)
 
+
 if __name__ == "__main__":
     # Set logging
     logging.basicConfig(format='%(message)s', level=logging.INFO)
@@ -52,7 +52,6 @@ if __name__ == "__main__":
 
     # Load strategy
     strategy = VegasTunnelLong(bot)
-    # strategy = BBShortTerm(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])
@@ -73,4 +72,3 @@ if __name__ == "__main__":
     bot.output_performance()
 
     # Buy & hold
-

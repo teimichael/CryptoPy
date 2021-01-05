@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.VTLIndicator import Indicator
+from strategy.VTLIndicator import Indicator, IndicatorCheck
 
 
 # Vegas Tunnel Strategy (long)
@@ -142,6 +142,7 @@ class VegasTunnelLong(object):
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__short_term_1_order = []
 
+    # Main strategy
     def run(self, current_time: datetime = None):
         # TODO Check connection
 
@@ -170,6 +171,41 @@ class VegasTunnelLong(object):
 
         # Short-term long strategy 1
         self.__short_term_1(indicator)
+
+    # Strategy trigger (running in a high frequency)
+    def run_trigger(self):
+        # Fetch records
+        rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
+
+        # Calculate indicators
+        i = IndicatorCheck(rec, self.__indicator_length_limit)
+
+        # Long-term 1 trigger (close)
+        if len(self.__long_term_1_order) > 0:
+            if self.__crossed_below(i.ema144, i.ema576):
+                logging.info("Trigger: Close long-term long strategy 1.")
+
+                for o in self.__long_term_1_order:
+                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                self.__long_term_1_order = []
+
+        # Long-term 2 trigger (close)
+        if len(self.__long_term_2_order) > 0:
+            if self.__crossed_below(i.close, i.bbUpper * 0.999):
+                logging.info("Trigger: Close long-term long strategy 2.")
+
+                for o in self.__long_term_2_order:
+                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                self.__long_term_2_order = []
+
+        # Short-term trigger (close)
+        if len(self.__short_term_1_order) > 0:
+            if self.__crossed_below(i.close, i.bbUpper * 0.999):
+                logging.info("Trigger: Close short-term long strategy 1.")
+
+                for o in self.__short_term_1_order:
+                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                self.__short_term_1_order = []
 
     # Buy order
     # TODO make a suitable order

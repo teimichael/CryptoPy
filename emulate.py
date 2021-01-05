@@ -2,8 +2,8 @@ import json
 import logging
 from datetime import datetime
 
-from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 from bot.emulate_bot import EmulateBot
 from strategy.VegasTunnelLong import VegasTunnelLong
@@ -13,10 +13,22 @@ from strategy.VegasTunnelLong import VegasTunnelLong
 def schedule_perf_calculation(bot):
     # Schedule recording performance
     scheduler = BackgroundScheduler()
+    # Per 15 minutes (offset 30 seconds)
     scheduler.add_job(bot.output_performance, 'cron', minute='*/15', second='30')
     scheduler.start()
 
 
+# Schedule strategy trigger
+def schedule_strategy_trigger(strategy):
+    # Schedule strategy trigger (trigger special events between two strategy executions)
+    scheduler = BackgroundScheduler()
+    # Per 1 minute (offset 15 seconds)
+    scheduler.add_job(strategy.run_trigger, 'cron', minute='*/1', second='15')
+
+    scheduler.start()
+
+
+# Schedule execution of strategy
 def schedule_strategy(strategy):
     scheduler = BlockingScheduler()
 
@@ -54,6 +66,9 @@ if __name__ == "__main__":
 
     # Schedule performance calculation
     schedule_perf_calculation(bot)
+
+    # Schedule strategy trigger
+    schedule_strategy_trigger(strategy)
 
     # Schedule strategy
     schedule_strategy(strategy)

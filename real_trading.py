@@ -17,7 +17,17 @@ def schedule_balance_log(bot):
     scheduler.start()
 
 
-# Schedule strategy
+# Schedule strategy trigger
+def schedule_strategy_trigger(strategy):
+    # Schedule strategy trigger (trigger special events between two strategy executions)
+    scheduler = BackgroundScheduler()
+    # Per 1 minute (offset 15 seconds)
+    scheduler.add_job(strategy.run_trigger, 'cron', minute='*/1', second='15')
+
+    scheduler.start()
+
+
+# Schedule execution of strategy
 def schedule_strategy(strategy):
     scheduler = BlockingScheduler()
 
@@ -57,6 +67,9 @@ if __name__ == "__main__":
 
     # Schedule balance log
     schedule_balance_log(bot)
+
+    # Schedule strategy trigger
+    schedule_strategy_trigger(strategy)
 
     # Schedule strategy
     schedule_strategy(strategy)

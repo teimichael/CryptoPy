@@ -99,7 +99,7 @@ class EmulateBot(object):
             orders = self.__fetch_open_orders(symbol, limit)
         return orders
 
-    def cancel_open_orders(self, symbol: str, limit: int = None):
+    def cancel_unfilled_orders(self, symbol: str, limit: int = None):
         open_orders = self.get_open_orders(symbol, limit)
         if open_orders is None or len(open_orders) == 0:
             return

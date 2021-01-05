@@ -13,10 +13,7 @@ class VegasTunnelLong(object):
     # Time frame
     __time_frame = '15m'
 
-    # Max order
-    __max_order = 10
-
-    # Amount per order
+    # Amount per order (BTC)
     __amount = 0.001
 
     # Record limit per fetch (Binance max: 1500)
@@ -142,15 +139,15 @@ class VegasTunnelLong(object):
                     order = self.__bot.sell_market(self.__symbol, self.__amount)
                 self.__short_term_1_order = []
 
-    # Main strategy
+    # Execute strategy
     def run(self, current_time: datetime = None):
         # TODO Check connection
 
         log_time = (str(current_time) + ' ') if not (current_time is None) else ''
         logging.info(log_time + "Executing Vegas Tunnel Strategy.")
 
-        # Cancel open orders
-        self.__bot.cancel_open_orders(self.__symbol, self.__max_open_order)
+        # Cancel unfilled orders
+        self.__bot.cancel_unfilled_orders(self.__symbol, self.__max_open_order)
 
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)

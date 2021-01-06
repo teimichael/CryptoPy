@@ -16,6 +16,14 @@ class PerfInfo:
     def __init__(self):
         # PnL
         self.pnl = 0
+        # Max PnL
+        self.pnl_max = 0
+        # Min PnL
+        self.pnl_min = 0
+        # Max Cumulative PnL
+        self.cum_pnl_max = 0
+        # Min Cumulative PnL
+        self.cum_pnl_min = 0
         # Long PnL
         self.long_pnl = 0
         # Short PnL
@@ -44,3 +52,7 @@ class PerfInfo:
         self.loss_long = 0
         # Short win order number
         self.loss_short = 0
+        # PnL History
+        self.pnl_history = [0]
+        # Cumulative PnL History
+        self.cum_pnl_history = [0]

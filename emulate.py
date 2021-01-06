@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from bot.emulate_bot import EmulateBot
-from strategy.VegasTunnelLong import VegasTunnelLong
+from strategy.VTLCompound import VegasTunnelLong
 
 
 # Calculate performance

@@ -2,11 +2,10 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
+from strategy.indicator.BBSTIndicator import Indicator
+
 
 # Bollinger Bands Short-Term Strategy (long)
-from strategy.BBSTIndicator import Indicator
-
-
 class BBShortTerm(object):
     # Pair
     __symbol = 'BTC/USDT'

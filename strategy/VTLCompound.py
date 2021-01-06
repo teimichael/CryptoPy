@@ -2,10 +2,10 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.VTLIndicator import Indicator, IndicatorCheck
+from strategy.indicator.VTLCIndicator import Indicator, IndicatorCheck
 
 
-# Vegas Tunnel Strategy (long)
+# Vegas Tunnel Compound Strategy (long)
 class VegasTunnelLong(object):
     # Pair
     __symbol = 'BTC/USDT'

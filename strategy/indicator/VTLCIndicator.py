@@ -2,7 +2,10 @@ import numpy as np
 import talib as ta
 
 
-# Indicators
+# Indicators for Vegas Tunnel Compound Strategy (long)
+from talib._ta_lib import MA_Type
+
+
 class Indicator:
     def __init__(self, records, length_limit):
         # Ignore current time point record (only consider complete k-lines)
@@ -31,7 +34,7 @@ class Indicator:
         self.ema676 = fill_none(ta.EMA(self.close, 676)[-length_limit:])
 
         # Bollinger Bands (Close)
-        bb = ta.BBANDS(self.close, timeperiod=20, nbdevup=2, nbdevdn=2)
+        bb = ta.BBANDS(self.close, timeperiod=20, nbdevup=2, nbdevdn=2, matype=MA_Type.SMA)
         self.bbUpper = fill_none(bb[0][-length_limit:])
         self.bbLower = fill_none(bb[2][-length_limit:])
 

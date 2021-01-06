@@ -16,7 +16,7 @@
     "quote": "BTC",
     "futures": true,
     "time_frame": "15m",
-    "start_date": "01/01/2018",
-    "end_date": "01/03/2021"
+    "start_date": "01/01/2017",
+    "end_date": "01/05/2021"
   }
 }

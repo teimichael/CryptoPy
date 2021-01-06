@@ -16,6 +16,9 @@ class VegasTunnelLong(object):
     # Amount per order (BTC)
     __amount = 0.001
 
+    # Long-term weight
+    __long_weight = 1.5
+
     # Record limit per fetch (Binance max: 1500)
     __record_limit = 1000
 
@@ -45,7 +48,7 @@ class VegasTunnelLong(object):
                 return
 
             logging.info("Open long-term long strategy 1.")
-            order = self.__buy()
+            order = self.__buy(self.__long_weight)
             if order is not None:
                 self.__long_term_1_order.append(order)
         elif len(self.__long_term_1_order) > 0:
@@ -65,7 +68,7 @@ class VegasTunnelLong(object):
                 return
 
             logging.info("Open long-term long strategy 2.")
-            order = self.__buy()
+            order = self.__buy(self.__long_weight)
             if order is not None:
                 self.__long_term_2_order.append(order)
         elif len(self.__long_term_2_order) > 0:
@@ -206,12 +209,12 @@ class VegasTunnelLong(object):
 
     # Buy order
     # TODO make a suitable order
-    def __buy(self):
+    def __buy(self, weight: float = 1):
         ticker = self.__bot.get_ticker(self.__symbol)
         if ticker is None:
-            order = self.__bot.buy_market(self.__symbol, self.__amount)
+            order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
         else:
-            order = self.__bot.buy_limit(self.__symbol, self.__amount, ticker['last'] * self.__slippage_buy)
+            order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
         return order
 
     # Reached max number of open orders

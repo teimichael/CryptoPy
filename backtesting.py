@@ -6,8 +6,7 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.VTLCompound import VegasTunnelLong
-from strategy.BBCompound import BollingerBands
+from strategy.VTClassic import VegasTunnel
 
 
 def test_1h(start: datetime, end: datetime):
@@ -60,8 +59,7 @@ if __name__ == "__main__":
                       config['taker_fee'], config['maker_fee'])
 
     # Load strategy
-    # strategy = VegasTunnelLong(bot)
-    strategy = BollingerBands(bot)
+    strategy = VegasTunnel(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])

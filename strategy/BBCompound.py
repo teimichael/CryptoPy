@@ -6,7 +6,7 @@ from core import trade_lib as tl
 from strategy.indicator.BBCIndicator import Indicator
 
 
-# Bollinger Bands Compound strategy
+# Bollinger Bands Compound strategy (Long-term Best: 15m)
 class BollingerBands(object):
     # Pair
     __symbol = 'BTC/USDT'

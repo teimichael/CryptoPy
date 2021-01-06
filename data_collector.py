@@ -23,12 +23,17 @@ def get_raw_data(base: str, quote: str, time_frame: str, start_date: str, end_da
 
 def integrity_check(symbol: str, time_frame: str, raw_data_dir: str):
     for root, dirs, files in os.walk(f"{raw_data_dir}{time_frame}_data/{symbol}/individual_csvs"):
+        print("Failed integrity check list: ")
         for name in files:
             df = pd.read_csv(os.path.join(root, name))
-            # 1h: 25, 15m: 96
+            # 1h: 25, 15m: 96, 5m: 288
             if time_frame == '1h' and len(df) != 25:
                 print(name)
             elif time_frame == '15m' and len(df) != 96:
+                print(name)
+            elif time_frame == '5m' and len(df) != 288:
+                print(name)
+            elif time_frame == '3m' and len(df) != 480:
                 print(name)
 
 

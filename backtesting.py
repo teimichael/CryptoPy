@@ -6,8 +6,8 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.BBShortTerm import BBShortTerm
 from strategy.VTLCompound import VegasTunnelLong
+from strategy.BBCompound import BollingerBands
 
 
 def test_1h(start: datetime, end: datetime):
@@ -22,6 +22,14 @@ def test_15m(start: datetime, end: datetime):
     times = (end - start).days * 24 * 4 + 1
     for i in range(times):
         current = start + timedelta(minutes=i * 15)
+        bot.set_current_time(current)
+        strategy.run(current)
+
+
+def test_5m(start: datetime, end: datetime):
+    times = (end - start).days * 24 * 12 + 1
+    for i in range(times):
+        current = start + timedelta(minutes=i * 5)
         bot.set_current_time(current)
         strategy.run(current)
 
@@ -52,8 +60,8 @@ if __name__ == "__main__":
                       config['taker_fee'], config['maker_fee'])
 
     # Load strategy
-    strategy = VegasTunnelLong(bot)
-    # strategy = BBShortTerm(bot)
+    # strategy = VegasTunnelLong(bot)
+    strategy = BollingerBands(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])
@@ -64,6 +72,8 @@ if __name__ == "__main__":
         test_1h(start, end)
     elif config['interval'] == '15m':
         test_15m(start, end)
+    elif config['interval'] == '5m':
+        test_5m(start, end)
     elif config['interval'] == '3m':
         test_3m(start, end)
 

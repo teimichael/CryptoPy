@@ -3,7 +3,7 @@ from datetime import datetime
 
 from core import trade_lib as tl
 
-from strategy.indicator.BBCIndicator import Indicator
+from strategy.indicator.BBCompIndicator import Indicator
 
 
 # Bollinger Bands Compound strategy (Long-term Best: 15m)

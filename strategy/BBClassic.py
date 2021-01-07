@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.indicator.BBSTIndicator import Indicator
+from strategy.indicator.BBClassicIndicator import Indicator
 
 
-# Bollinger Bands Short-Term Strategy (long)
-class BBShortTerm(object):
+# Bollinger Bands Classic Strategy (long)
+class BBClassic(object):
     # Pair
     __symbol = 'BTC/USDT'
 
@@ -57,7 +57,7 @@ class BBShortTerm(object):
         # TODO Check connection
 
         log_time = (str(current_time) + ' ') if not (current_time is None) else ''
-        logging.info(log_time + "Executing BB Short Strategy.")
+        logging.info(log_time + "Executing BB Classic Strategy.")
 
         # Cancel unfilled orders
         self.__bot.cancel_unfilled_orders(self.__symbol, self.__max_open_order)

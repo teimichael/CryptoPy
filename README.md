@@ -23,7 +23,7 @@ RESULTS.
 
 ## Data Collector
 
-> - backtest_config.json: configuration file
+> - backtest_config.json -> 'data': configuration file
 > - data_collector.py: entry point
 
 Collect OHLCV records from Binance. Notice that *start_date* and *end_date* are set with UTC.
@@ -40,10 +40,31 @@ For more information, please refer to [binance_data](https://github.com/uneasygu
 
 Write your strategy here.
 
+> strategy/indicator/*.py
+
+Write your indicators here.
+
 ### Demo
 
-> - Indicator.py: indicators for Vegas Tunnel
-> - VegasTunnel.py: Vegas Tunnel Strategy (long only)
+- Vegas Tunnel Classic Strategy
+
+> - VTClassic.py: indicators for Vegas Tunnel Classic Strategy
+> - VTLClassicIndicator: Vegas Tunnel Classic Strategy (long only)
+
+- Vegas Tunnel Compound Strategy
+
+> - VTLCompIndicator.py: indicators for Vegas Tunnel Compound Strategy
+> - VTLCompound.py: Vegas Tunnel Compound Strategy (long only)
+
+- Bollinger Bands Classic Strategy
+
+> - BBClassicIndicator.py: indicators for Bollinger Bands Classic Strategy
+> - BBClassic.py: Bollinger Bands Classic Strategy (long)
+
+- Bollinger Bands Compound Strategy
+
+> - BBCompIndicator.py: indicators for Bollinger Bands Compound Strategy
+> - BBCompound.py: Bollinger Bands Compound Strategy (long)
 
 ### Dependency
 
@@ -56,7 +77,14 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 > - backtest_config.json: configuration file
 > - backtesting.py: entry script
 
-Currently support *1h* and *15m*. Notice that *start_date* and *end_date* are set with local timezone.
+### Support time frame
+
+- 1h
+- 15m
+- 5m
+- 3m
+
+Notice that *start_date* and *end_date* are set with local timezone.
 
 ## Real-Time Emulation
 

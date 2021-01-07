@@ -2,7 +2,7 @@ import numpy as np
 import talib as ta
 
 
-# Indicators for Bollinger Bands Short-Term Strategy
+# Indicators for Bollinger Bands Classic Strategy
 class Indicator:
     def __init__(self, records, length_limit):
         # Ignore current time point record (only consider complete k-lines)

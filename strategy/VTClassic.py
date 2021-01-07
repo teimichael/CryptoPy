@@ -11,7 +11,7 @@ class VegasTunnel(object):
     __symbol = 'BTC/USDT'
 
     # Time frame
-    __time_frame = '15m'
+    __time_frame = '1h'
 
     # Amount per order (BTC)
     __amount = 0.001

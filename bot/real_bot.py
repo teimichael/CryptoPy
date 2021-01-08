@@ -15,7 +15,7 @@ class RealBot(object):
             'secret': config["api_access"]["secret"],
             'enableRateLimit': True,
             'options': {
-                'defaultType': 'future',
+                'defaultType': config["exchange_type"],
             },
         })
 

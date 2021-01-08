@@ -12,6 +12,7 @@ RESULTS.
 
 - [x] **Based on Python 3.7+**
 - [x] **Binance API Integration**
+- [x] **Spot / Futures**
 - [x] **Data Collection** (Binance)
 - [ ] **Backtesting**
 - [x] **Real-Time Emulation** (Binance)

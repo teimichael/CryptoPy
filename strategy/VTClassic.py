@@ -14,7 +14,7 @@ class VegasTunnel(object):
     __time_frame = '1h'
 
     # Amount per order (BTC)
-    __amount = 0.001
+    __amount = 0.01
 
     # Long-term weight
     __long_weight = 1.5

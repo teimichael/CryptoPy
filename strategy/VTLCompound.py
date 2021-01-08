@@ -56,7 +56,7 @@ class VegasTunnelCompound(object):
                 logging.info("Close long-term long strategy 1.")
 
                 for o in self.__long_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_1_order = []
 
     # Long-term 2
@@ -76,13 +76,13 @@ class VegasTunnelCompound(object):
                 logging.info("Close long-term long strategy 2.")
 
                 for o in self.__long_term_2_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_2_order = []
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close long-term long strategy 2.")
 
                 for o in self.__long_term_2_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_2_order = []
 
     # Mid-term 1
@@ -102,14 +102,8 @@ class VegasTunnelCompound(object):
                 logging.info("Close mid-term long strategy 1.")
 
                 for o in self.__mid_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell()
                 self.__mid_term_1_order = []
-            # elif self.__crossed_below(i.close, i.bbUpper * 0.999):
-            #     logging.info("Close mid-term long strategy 1.")
-            #
-            #     for o in self.__mid_term_1_order:
-            #         order = self.__bot.sell_market(self.__symbol, self.__amount)
-            #     self.__mid_term_1_order = []
 
     # Short-term 1
     def __short_term_1(self, i: Indicator):
@@ -133,13 +127,13 @@ class VegasTunnelCompound(object):
                 logging.info("Close short-term long strategy 1.")
 
                 for o in self.__short_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell()
                 self.__short_term_1_order = []
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close short-term long strategy 1.")
 
                 for o in self.__short_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell()
                 self.__short_term_1_order = []
 
     # Execute strategy
@@ -186,7 +180,7 @@ class VegasTunnelCompound(object):
                 logging.info("Trigger: Close long-term long strategy 1.")
 
                 for o in self.__long_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_1_order = []
 
         # Long-term 2 trigger (close)
@@ -195,7 +189,7 @@ class VegasTunnelCompound(object):
                 logging.info("Trigger: Close long-term long strategy 2.")
 
                 for o in self.__long_term_2_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_2_order = []
 
         # Short-term trigger (close)
@@ -204,22 +198,29 @@ class VegasTunnelCompound(object):
                 logging.info("Trigger: Close short-term long strategy 1.")
 
                 for o in self.__short_term_1_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell()
                 self.__short_term_1_order = []
 
     # Buy order
     # TODO make a suitable order
     def __buy(self, weight: float = 1):
-        ticker = self.__bot.get_ticker(self.__symbol)
-        if ticker is None:
-            order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
-        else:
-            order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
+        # ticker = self.__bot.get_ticker(self.__symbol)
+        # if ticker is None:
+        #     order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
+        # else:
+        #     order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
+        order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
+        return order
+
+    # Sell order
+    # TODO make a suitable order
+    def __sell(self, weight: float = 1):
+        order = self.__bot.sell_market(self.__symbol, self.__amount * weight)
         return order
 
     # Reached max number of open orders
     def __reached_max_open_order(self):
-        return self.__count_current_open_orders() > self.__max_open_order
+        return self.__count_current_open_orders() >= self.__max_open_order
 
     # Total number of current open orders
     def __count_current_open_orders(self):

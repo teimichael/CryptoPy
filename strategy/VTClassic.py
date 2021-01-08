@@ -14,7 +14,7 @@ class VegasTunnel(object):
     __time_frame = '1h'
 
     # Amount per order (BTC)
-    __amount = 0.01
+    __amount = 0.001
 
     # Long-term weight
     __long_weight = 1.5
@@ -26,7 +26,7 @@ class VegasTunnel(object):
     __indicator_length_limit = 10
 
     # Max number of open orders (included)
-    __max_open_order = 10
+    __max_open_order = 8
 
     # Slippage rate allowed while buying
     __slippage_buy = 1 + 0.00008
@@ -54,7 +54,7 @@ class VegasTunnel(object):
                 logging.info("Close long-term long strategy.")
 
                 for o in self.__long_term_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell(self.__long_weight)
                 self.__long_term_order = []
 
     # Short-term Strategy
@@ -65,8 +65,13 @@ class VegasTunnel(object):
                 logging.info("Cannot open short-term long strategy: reached max number of open orders.")
                 return
 
+            # Limit max number of short-term open orders to avoid short-term fluctuation
+            if len(self.__short_term_order) >= 5:
+                logging.info("Cannot open short-term long strategy: reached max number of short-term open orders.")
+                return
+
             logging.info("Open short-term long strategy.")
-            order = self.__buy(self.__long_weight)
+            order = self.__buy()
             if order is not None:
                 self.__short_term_order.append(order)
         elif len(self.__short_term_order) > 0:
@@ -74,7 +79,7 @@ class VegasTunnel(object):
                 logging.info("Close short-term long strategy.")
 
                 for o in self.__short_term_order:
-                    order = self.__bot.sell_market(self.__symbol, self.__amount)
+                    order = self.__sell()
                 self.__short_term_order = []
 
     # Execute strategy
@@ -104,16 +109,23 @@ class VegasTunnel(object):
     # Buy order
     # TODO make a suitable order
     def __buy(self, weight: float = 1):
-        ticker = self.__bot.get_ticker(self.__symbol)
-        if ticker is None:
-            order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
-        else:
-            order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
+        # ticker = self.__bot.get_ticker(self.__symbol)
+        # if ticker is None:
+        #     order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
+        # else:
+        #     order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
+        order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
+        return order
+
+    # Sell order
+    # TODO make a suitable order
+    def __sell(self, weight: float = 1):
+        order = self.__bot.sell_market(self.__symbol, self.__amount * weight)
         return order
 
     # Reached max number of open orders
     def __reached_max_open_order(self):
-        return self.__count_current_open_orders() > self.__max_open_order
+        return self.__count_current_open_orders() >= self.__max_open_order
 
     # Total number of current open orders
     def __count_current_open_orders(self):

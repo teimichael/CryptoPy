@@ -2,6 +2,7 @@ import json
 import logging
 
 import ccxt
+from tenacity import *
 
 from core.model import Order
 from core.performance import get_performance
@@ -28,41 +29,32 @@ class EmulateBot(object):
         self.__order_history = []
         logging.info("Emulate bot created.")
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:
-        try:
-            rec = self.__fetch_ohlcv(symbol, timeframe, limit)
-        except ccxt.NetworkError as e:
-            logging.info('Network error: ', str(e))
-            rec = self.__fetch_ohlcv(symbol, timeframe, limit)
+        rec = self.__fetch_ohlcv(symbol, timeframe, limit)
         return rec
 
     # TODO No use
     def get_ohlcv_range(self, symbol: str, timeframe: str, start: int, end: int) -> dict:
         return self.exchange.fetch_ohlcv(symbol, timeframe, params={'startTime': start, 'endTime': end})
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_balance(self) -> dict:
-        try:
-            balance = self.exchange.fetch_balance()
-        except ccxt.NetworkError as e:
-            logging.info('Network error: ', str(e))
-            balance = self.exchange.fetch_balance()
-
+        balance = self.exchange.fetch_balance()
         return balance['info'] if balance is not None else None
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_positions(self) -> list:
-        try:
-            balance = self.exchange.fetch_balance()
-        except ccxt.NetworkError as e:
-            logging.info('Network error: ', str(e))
-            balance = self.exchange.fetch_balance()
+        balance = self.exchange.fetch_balance()
         return balance['info']['positions'] if balance is not None else None
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_ticker(self, symbol: str) -> dict:
-        try:
-            ticker = self.exchange.fetch_ticker(symbol)
-        except ccxt.NetworkError as e:
-            logging.info('Network error: ', str(e))
-            ticker = self.exchange.fetch_ticker(symbol)
+        ticker = self.exchange.fetch_ticker(symbol)
         return ticker
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
@@ -91,12 +83,10 @@ class EmulateBot(object):
         logging.info('sell (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_open_orders(self, symbol: str, limit: int = None):
-        try:
-            orders = self.__fetch_open_orders(symbol, limit)
-        except ccxt.NetworkError as e:
-            logging.info('Network error: ', str(e))
-            orders = self.__fetch_open_orders(symbol, limit)
+        orders = self.__fetch_open_orders(symbol, limit)
         return orders
 
     def cancel_unfilled_orders(self, symbol: str, limit: int = None):
@@ -136,6 +126,8 @@ class EmulateBot(object):
         else:
             return self.exchange.fetch_ohlcv(symbol, timeframe, params={'limit': limit})
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def __fetch_open_orders(self, symbol: str, limit: int = None):
         if self.exchange.has['fetchOpenOrders']:
             if limit is None:

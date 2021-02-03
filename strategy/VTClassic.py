@@ -6,18 +6,18 @@ from strategy.indicator.VTLClassicIndicator import Indicator
 
 
 # Vegas Tunnel Classic Strategy
-class VegasTunnel(object):
+class VegasTunnelClassic(object):
     # Pair
     __symbol = 'BTC/USDT'
 
     # Time frame
-    __time_frame = '1h'
+    __time_frame = '15m'
 
     # Amount per order (BTC)
-    __amount = 0.001
+    __amount = 0.01
 
     # Long-term weight
-    __long_weight = 1.5
+    __long_weight = 1
 
     # Record limit per fetch (Binance max: 1500)
     __record_limit = 1000
@@ -26,7 +26,7 @@ class VegasTunnel(object):
     __indicator_length_limit = 10
 
     # Max number of open orders (included)
-    __max_open_order = 8
+    __max_open_order = 18
 
     # Slippage rate allowed while buying
     __slippage_buy = 1 + 0.00008
@@ -63,11 +63,6 @@ class VegasTunnel(object):
             # Check whether reached max number of open orders to prevent overbuying
             if self.__reached_max_open_order():
                 logging.info("Cannot open short-term long strategy: reached max number of open orders.")
-                return
-
-            # Limit max number of short-term open orders to avoid short-term fluctuation
-            if len(self.__short_term_order) >= 5:
-                logging.info("Cannot open short-term long strategy: reached max number of short-term open orders.")
                 return
 
             logging.info("Open short-term long strategy.")

@@ -1,5 +1,7 @@
 from core.model import PerfInfo
 
+precision = 10
+
 
 # TODO funding, fee, rate, etc.
 def get_performance(orders) -> PerfInfo:
@@ -84,6 +86,8 @@ def get_performance(orders) -> PerfInfo:
                 perf.loss_short += 1
             # Append to history list
             perf.pnl_history.append(pnl)
+        long_amount = round(long_amount, precision)
+        short_amount = round(short_amount, precision)
 
     # Cumulative PnL History
     if len(perf.pnl_history) > 1:

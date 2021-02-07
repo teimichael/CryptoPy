@@ -2,10 +2,6 @@ import numpy as np
 import talib as ta
 
 
-# Indicators for Vegas Tunnel Compound Strategy (long)
-from talib._ta_lib import MA_Type
-
-
 # Indicators for Vegas Tunnel Classic Strategy
 class Indicator:
     def __init__(self, records, length_limit):

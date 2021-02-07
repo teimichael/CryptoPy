@@ -6,16 +6,14 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.VTClassic import VegasTunnelClassic
 from strategy.VTLComp import VegasTunnelCompound
-from strategy.VTLCompLong import VegasTunnelCompoundLong
 
 
 def test_1h(start: datetime, end: datetime):
     times = (end - start).days * 24 + 1
     for i in range(times):
         current = start + timedelta(hours=i)
-        bot.set_current_time(current)
+        bot.next(current)
         strategy.run(current)
 
 
@@ -23,7 +21,7 @@ def test_15m(start: datetime, end: datetime):
     times = (end - start).days * 24 * 4 + 1
     for i in range(times):
         current = start + timedelta(minutes=i * 15)
-        bot.set_current_time(current)
+        bot.next(current)
         strategy.run(current)
 
 
@@ -31,7 +29,7 @@ def test_5m(start: datetime, end: datetime):
     times = (end - start).days * 24 * 12 + 1
     for i in range(times):
         current = start + timedelta(minutes=i * 5)
-        bot.set_current_time(current)
+        bot.next(current)
         strategy.run(current)
 
 
@@ -39,7 +37,15 @@ def test_3m(start: datetime, end: datetime):
     times = (end - start).days * 24 * 20 + 1
     for i in range(times):
         current = start + timedelta(minutes=i * 3)
-        bot.set_current_time(current)
+        bot.next(current)
+        strategy.run(current)
+
+
+def test_1m(start: datetime, end: datetime):
+    times = (end - start).days * 24 * 60 + 1
+    for i in range(times):
+        current = start + timedelta(minutes=i * 1)
+        bot.next(current)
         strategy.run(current)
 
 
@@ -61,9 +67,7 @@ if __name__ == "__main__":
                       config['taker_fee'], config['maker_fee'])
 
     # Load strategy
-    strategy = VegasTunnelClassic(bot)
-    # strategy = VegasTunnelCompound(bot)
-    # strategy = VegasTunnelCompoundLong(bot)
+    strategy = VegasTunnelCompound(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])
@@ -78,9 +82,11 @@ if __name__ == "__main__":
         test_5m(start, end)
     elif config['interval'] == '3m':
         test_3m(start, end)
+    elif config['interval'] == '1m':
+        test_1m(start, end)
 
     # Output order history
-    bot.output_order_history()
+    bot.output_order_history("filled")
 
     # Output performance
     bot.output_performance()

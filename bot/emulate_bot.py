@@ -27,6 +27,10 @@ class EmulateBot(object):
         markets = self.exchange.load_markets()
 
         self.__order_history = []
+
+        # Order ID Issuer
+        self.__order_id = 0
+
         logging.info("Emulate bot created.")
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
@@ -57,34 +61,49 @@ class EmulateBot(object):
         ticker = self.exchange.fetch_ticker(symbol)
         return ticker
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def get_order(self, o_id: int, symbol: str) -> dict:
+        o = self.exchange.fetch_order(id=o_id, symbol=symbol)
+        return o
+
+    # TODO still needs test
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def get_orders(self, symbol: str, limit: int = None) -> dict:
+        orders = self.exchange.fetch_orders(symbol=symbol)
+        return orders
+
     def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
-        o = Order(symbol, 'limit', 'buy', amount, price)
+        o = Order(self.__order_id, symbol, 'limit', 'buy', amount, price)
         self.__order_history.append(o)
+        self.__order_id += 1
         logging.info('buy (' + str(amount) + ') at (' + str(price) + ')')
         return o
 
     def buy_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)
-        o = Order(symbol, 'market', 'buy', amount, ticker['last'])
+        o = Order(self.__order_id,symbol, 'market', 'buy', amount, ticker['last'])
         self.__order_history.append(o)
+        self.__order_id += 1
         logging.info('buy (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
-        o = Order(symbol, 'limit', 'sell', amount, price)
+        o = Order(self.__order_id,symbol, 'limit', 'sell', amount, price)
         self.__order_history.append(o)
+        self.__order_id += 1
         logging.info('sell (' + str(amount) + ') at (' + str(price) + ')')
         return o
 
     def sell_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)
-        o = Order(symbol, 'market', 'sell', amount, ticker['last'])
+        o = Order(self.__order_id,symbol, 'market', 'sell', amount, ticker['last'])
         self.__order_history.append(o)
+        self.__order_id += 1
         logging.info('sell (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
-    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
-           after=after_log(logging.getLogger(__name__), logging.ERROR))
     def get_open_orders(self, symbol: str, limit: int = None):
         orders = self.__fetch_open_orders(symbol, limit)
         return orders

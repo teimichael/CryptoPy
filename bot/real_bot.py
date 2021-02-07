@@ -105,21 +105,36 @@ class RealBot(object):
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
            after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def get_order(self, o_id: int, symbol: str) -> dict:
+        o = self.exchange.fetch_order(id=o_id, symbol=symbol)
+        return o
+
+    # TODO still needs test
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def get_orders(self, symbol: str, limit: int = None) -> dict:
+        orders = self.exchange.fetch_orders(symbol=symbol)
+        return orders
+
     def get_open_orders(self, symbol: str, limit: int = None):
         orders = self.__fetch_open_orders(symbol, limit)
         return orders
 
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def cancel_order(self, o_id, symbol):
+        self.exchange.cancel_order(o_id, symbol)
+
     def cancel_unfilled_orders(self, symbol: str, limit: int = None):
+        canceled_ids = []
         open_orders = self.get_open_orders(symbol, limit)
         if open_orders is None or len(open_orders) == 0:
-            return
+            return canceled_ids
         for o in open_orders:
-            try:
-                self.exchange.cancel_order(o['id'], symbol)
-            except ccxt.NetworkError as e:
-                logging.info('Network error: ', str(e))
-                self.exchange.cancel_order(o['id'], symbol)
+            self.cancel_order(o['id'], symbol)
             logging.info('Canceled unfilled order ' + o['id'])
+            canceled_ids.append(o['id'])
+        return canceled_ids
 
     def output_balance(self):
         balance = self.get_balance()

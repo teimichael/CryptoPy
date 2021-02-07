@@ -18,6 +18,8 @@ def get_performance(orders) -> PerfInfo:
     # Position type
     position_type = None
     for o in orders:
+        if o['status'] != "filled":
+            continue
         # First order determines position type
         if position_type is None:
             position_type = 'long' if o['side'] == 'buy' else 'short'

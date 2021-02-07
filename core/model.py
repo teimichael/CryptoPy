@@ -1,12 +1,14 @@
 # Order model
-def Order(symbol: str, type: str, side: str, amount: float, price=None, timestamp=None) -> dict:
+def Order(id: int,symbol: str, type: str, side: str, amount: float, price=None, timestamp=None, status="unfilled") -> dict:
     return {
+        'id': id,
         'symbol': symbol,
         'type': type,
         'side': side,
         'amount': amount,
         'price': price,
-        'timestamp': timestamp
+        'timestamp': timestamp,
+        'status': status
     }
 
 

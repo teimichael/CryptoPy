@@ -19,6 +19,9 @@ class BackTestBot(object):
         # Record current time
         self.__current_time = str_to_timestamp('2019-09-10 00:00:00')
 
+        # Record current price
+        self.__update_current_price()
+
         # Current balance
         self.__balance = balance
 
@@ -30,11 +33,41 @@ class BackTestBot(object):
         self.__max_leverage = max_leverage
         self.__trade_leverage = trade_leverage
 
+        # Order ID Issuer
+        self.__order_id = 0
+
         # Order history
         self.__order_history = []
 
-    def set_current_time(self, current_time: datetime):
-        self.__current_time = int(current_time.timestamp() * 1000)
+    def next(self, next_time: datetime):
+        for o in self.__order_history:
+            if o['type'] == "market" and o['status'] == "unfilled":
+                # Fill all unfilled market orders
+                o['status'] = "filled"
+            elif o['type'] == "limit" and o['status'] == "unfilled" and self.__current_price['low'] <= o['price'] <= \
+                    self.__current_price['high']:
+                # Fill all limit orders of which price is between low and high of the last record
+                o['status'] = "filled"
+
+        # Update current time
+        self.__current_time = int(next_time.timestamp() * 1000)
+
+        # Update current price
+        self.__update_current_price()
+
+    def __update_current_price(self):
+        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
+        assert len(i) == 1
+        current_price_record = self.__history.iloc[i[0]]
+
+        # Record current price
+        self.__current_price = {
+            "open": current_price_record['Open'],
+            "high": current_price_record['High'],
+            "low": current_price_record['Low'],
+            "close": current_price_record['Close'],
+            "volume": current_price_record['Volume']
+        }
 
     # Return limited history before current time with duplicated latest time
     # Real bot will return limited history before and including current time
@@ -46,7 +79,7 @@ class BackTestBot(object):
         # From dataframe to list
         h = h.iloc[i[0] - limit: i[0]].values.tolist()
 
-        # Duplicate last record
+        # Duplicate last record (due to the unfinished k-line data in real)
         h.append(h[-1])
         h = h[1:]
 
@@ -65,8 +98,9 @@ class BackTestBot(object):
         )
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
-        o = Order(symbol, 'limit', 'buy', amount, price, self.__current_time)
+        o = Order(self.__order_id, symbol, 'limit', 'buy', amount, price, self.__current_time)
         self.__order_history.append(o)
+        self.__order_id += 1
         return o
 
     def buy_market(self, symbol: str, amount: float) -> Order:
@@ -75,33 +109,60 @@ class BackTestBot(object):
 
         # Assume market price is close to the open price of the next record
         # TODO Check whether balance is enough to buy
-        o = Order(symbol, 'market', 'buy', amount, self.__history.iloc[i[0]]['Open'], self.__current_time)
+        o = Order(self.__order_id, symbol, 'market', 'buy', amount, self.__history.iloc[i[0]]['Open'],
+                  self.__current_time)
         self.__order_history.append(o)
+        self.__order_id += 1
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
-        o = Order(symbol, 'limit', 'sell', amount, price, self.__current_time)
+        o = Order(self.__order_id, symbol, 'limit', 'sell', amount, price, self.__current_time)
         self.__order_history.append(o)
+        self.__order_id += 1
         return o
 
     def sell_market(self, symbol: str, amount: float) -> Order:
         i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
         assert len(i) == 1
         # TODO Check whether amount is enough to sell
-        o = Order(symbol, 'market', 'sell', amount, self.__history.iloc[i[0]]['Open'], self.__current_time)
+        o = Order(self.__order_id, symbol, 'market', 'sell', amount, self.__history.iloc[i[0]]['Open'],
+                  self.__current_time)
         self.__order_history.append(o)
+        self.__order_id += 1
         return o
 
-    def cancel_unfilled_orders(self, symbol: str, limit: int = None):
-        # Do nothing in backtesting
-        return
-
-    def output_order_history(self):
-        logging.info('Order history')
+    def get_order(self, o_id: int, symbol: str) -> dict:
+        order = None
         for o in self.__order_history:
-            logging.info(
-                str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
-                    o['amount']) + ') at (' + str(o['price']) + ')')
+            if o['id'] == o_id:
+                order = o
+                break
+        return order
+
+    def cancel_order(self, o_id: int, symbol: str):
+        for o in self.__order_history:
+            if o['id'] == o_id:
+                o['status'] = "cancel"
+                break
+
+    def cancel_unfilled_orders(self, symbol: str, limit: int = None):
+        canceled_ids = []
+        for o in self.__order_history:
+            if o['status'] == "unfilled":
+                o['status'] = "cancel"
+                canceled_ids.append(o['id'])
+        return canceled_ids
+
+    def output_order_history(self, status=None):
+        logging.info('Order history')
+        if status is None:
+            for o in self.__order_history:
+                logging.info(o)
+        elif status == "filled":
+            for o in self.__order_history:
+                if o['status'] == "filled":
+                    logging.info(str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
+                        o['amount']) + ') at (' + str(o['price']) + ')')
 
     def output_performance(self):
         perf = get_performance(self.__order_history)

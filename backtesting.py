@@ -6,7 +6,7 @@ import pandas as pd
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.VTLComp import VegasTunnelCompound
+from strategy.MomClassic import MomClassic
 
 
 def test_1h(start: datetime, end: datetime):
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                       config['taker_fee'], config['maker_fee'])
 
     # Load strategy
-    strategy = VegasTunnelCompound(bot)
+    strategy = MomClassic(bot)
 
     # Calculate strategy execution times
     start = str_to_date(config['start_time'])

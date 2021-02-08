@@ -52,10 +52,10 @@ Write your indicators here.
 > - VTClassic.py: indicators for Vegas Tunnel Classic Strategy
 > - VTLClassicIndicator: Vegas Tunnel Classic Strategy (long only)
 
-- Vegas Tunnel Compound Strategy
+- Vegas Tunnel Compound Long Strategy
 
-> - VTLCompIndicator.py: indicators for Vegas Tunnel Compound Strategy
-> - VTLCompound.py: Vegas Tunnel Compound Strategy (long only)
+> - VTLCompIndicator.py: indicators for Vegas Tunnel Compound Long Strategy
+> - VTLCompound.py: Vegas Tunnel Compound Strategy
 
 - Bollinger Bands Classic Strategy
 
@@ -66,6 +66,11 @@ Write your indicators here.
 
 > - BBCompIndicator.py: indicators for Bollinger Bands Compound Strategy
 > - BBCompound.py: Bollinger Bands Compound Strategy (long)
+
+- Momentum Classic Strategy
+
+> - MomClassicIndicator.py: indicators for Momentum Classic Strategy
+> - MomClassic.py: Momentum Classic Strategy
 
 ### Dependency
 
@@ -84,6 +89,7 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 - 15m
 - 5m
 - 3m
+- 1m
 
 Notice that *start_date* and *end_date* are set with local timezone.
 

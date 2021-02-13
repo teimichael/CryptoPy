@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.indicator.VTLClassicIndicator import Indicator
+from strategy.indicator.VTClassicIndicator import Indicator
 
 
 # Vegas Tunnel Classic Strategy

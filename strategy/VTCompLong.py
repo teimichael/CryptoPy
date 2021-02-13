@@ -3,7 +3,7 @@ from datetime import datetime
 
 from core import order_manager as om
 from core import trade_lib as tl
-from strategy.indicator.VTLCompLongIndicator import Indicator, IndicatorCheck
+from strategy.indicator.VTCompLongIndicator import Indicator, IndicatorCheck
 
 
 # Vegas Tunnel Compound Strategy (long)

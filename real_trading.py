@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from bot.real_bot import RealBot
 from bot.emulate_bot import EmulateBot
-from strategy.VTLCompLong import VegasTunnelCompoundLong
+from strategy.VTCompLong import VegasTunnelCompoundLong
 
 
 # Schedule balance log

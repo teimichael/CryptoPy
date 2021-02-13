@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
-from strategy.MomClassic import MomClassic
-from strategy.VTLCompLong import VegasTunnelCompoundLong
+from strategy.VTCompLong import VegasTunnelCompoundLong
 
 
 def test_1h(start: datetime, end: datetime):

@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from core import order_manager as om
 from core import trade_lib as tl
 from strategy.indicator.VTLCompLongIndicator import Indicator, IndicatorCheck
 
@@ -34,10 +35,10 @@ class VegasTunnelCompoundLong(object):
     def __init__(self, bot):
         self.__bot = bot
 
-    __long_term_1_order = []
-    __long_term_2_order = []
-    __mid_term_1_order = []
-    __short_term_1_order = []
+    __LONG_TERM_1 = "long_term_1_order"
+    __LONG_TERM_2 = "long_term_2_order"
+    __MID_TERM_1 = "mid_term_1_order"
+    __SHORT_TERM_1 = "short_term_1_order"
 
     # Long-term 1
     def __long_term_1(self, i: Indicator):
@@ -50,14 +51,14 @@ class VegasTunnelCompoundLong(object):
             logging.info("Open long-term long strategy 1.")
             order = self.__buy(self.__long_weight)
             if order is not None:
-                self.__long_term_1_order.append(order)
-        elif len(self.__long_term_1_order) > 0:
+                om.create(self.__LONG_TERM_1, order)
+        elif om.get_length(self.__LONG_TERM_1) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Close long-term long strategy 1.")
 
-                for o in self.__long_term_1_order:
+                for o in range(om.get_length(self.__LONG_TERM_1)):
                     order = self.__sell(self.__long_weight)
-                self.__long_term_1_order = []
+                om.clear(self.__LONG_TERM_1)
 
     # Long-term 2
     def __long_term_2(self, i: Indicator):
@@ -70,20 +71,20 @@ class VegasTunnelCompoundLong(object):
             logging.info("Open long-term long strategy 2.")
             order = self.__buy(self.__long_weight)
             if order is not None:
-                self.__long_term_2_order.append(order)
-        elif len(self.__long_term_2_order) > 0:
+                om.create(self.__LONG_TERM_2, order)
+        elif om.get_length(self.__LONG_TERM_2) > 0:
             if i.macd_dif < 0 or i.ema169[-1] < i.ema676[-1]:
                 logging.info("Close long-term long strategy 2.")
 
-                for o in self.__long_term_2_order:
+                for o in range(om.get_length(self.__LONG_TERM_2)):
                     order = self.__sell(self.__long_weight)
-                self.__long_term_2_order = []
+                om.clear(self.__LONG_TERM_2)
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close long-term long strategy 2.")
 
-                for o in self.__long_term_2_order:
+                for o in range(om.get_length(self.__LONG_TERM_2)):
                     order = self.__sell(self.__long_weight)
-                self.__long_term_2_order = []
+                om.clear(self.__LONG_TERM_2)
 
     # Mid-term 1
     def __mid_term_1(self, i: Indicator):
@@ -96,14 +97,14 @@ class VegasTunnelCompoundLong(object):
             logging.info("Open mid-term long strategy 1.")
             order = self.__buy()
             if order is not None:
-                self.__mid_term_1_order.append(order)
-        elif len(self.__mid_term_1_order) > 0:
+                om.create(self.__MID_TERM_1, order)
+        elif om.get_length(self.__MID_TERM_1) > 0:
             if i.macd_dif < 0 or i.ema144[-1] < i.ema676[-1]:
                 logging.info("Close mid-term long strategy 1.")
 
-                for o in self.__mid_term_1_order:
+                for o in range(om.get_length(self.__MID_TERM_1)):
                     order = self.__sell()
-                self.__mid_term_1_order = []
+                om.clear(self.__MID_TERM_1)
 
     # Short-term 1
     def __short_term_1(self, i: Indicator):
@@ -114,27 +115,27 @@ class VegasTunnelCompoundLong(object):
                 return
 
             # Limit max number of short-term open orders to avoid short-term fluctuation
-            if len(self.__short_term_1_order) >= 5:
+            if om.get_length(self.__SHORT_TERM_1) >= 5:
                 logging.info("Cannot open short-term long strategy 1: reached max number of short-term open orders.")
                 return
 
             logging.info("Open short-term long strategy 1.")
             order = self.__buy()
             if order is not None:
-                self.__short_term_1_order.append(order)
-        elif len(self.__short_term_1_order) > 0:
+                om.create(self.__SHORT_TERM_1, order)
+        elif om.get_length(self.__SHORT_TERM_1) > 0:
             if i.macd_dif < 0 or i.ema36[-1] < i.ema169[-1]:
                 logging.info("Close short-term long strategy 1.")
 
-                for o in self.__short_term_1_order:
+                for o in range(om.get_length(self.__SHORT_TERM_1)):
                     order = self.__sell()
-                self.__short_term_1_order = []
+                om.clear(self.__SHORT_TERM_1)
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close short-term long strategy 1.")
 
-                for o in self.__short_term_1_order:
+                for o in range(om.get_length(self.__SHORT_TERM_1)):
                     order = self.__sell()
-                self.__short_term_1_order = []
+                om.clear(self.__SHORT_TERM_1)
 
     # Execute strategy
     def run(self, current_time: datetime = None):
@@ -175,31 +176,31 @@ class VegasTunnelCompoundLong(object):
         i = IndicatorCheck(rec, self.__indicator_length_limit)
 
         # Long-term 1 trigger (close)
-        if len(self.__long_term_1_order) > 0:
+        if om.get_length(self.__LONG_TERM_1) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Trigger: Close long-term long strategy 1.")
 
-                for o in self.__long_term_1_order:
+                for o in range(om.get_length(self.__LONG_TERM_1)):
                     order = self.__sell(self.__long_weight)
-                self.__long_term_1_order = []
+                om.clear(self.__LONG_TERM_1)
 
         # Long-term 2 trigger (close)
-        if len(self.__long_term_2_order) > 0:
+        if om.get_length(self.__LONG_TERM_2) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close long-term long strategy 2.")
 
-                for o in self.__long_term_2_order:
+                for o in range(om.get_length(self.__LONG_TERM_2)):
                     order = self.__sell(self.__long_weight)
-                self.__long_term_2_order = []
+                om.clear(self.__LONG_TERM_2)
 
         # Short-term trigger (close)
-        if len(self.__short_term_1_order) > 0:
+        if om.get_length(self.__SHORT_TERM_1) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close short-term long strategy 1.")
 
-                for o in self.__short_term_1_order:
+                for o in range(om.get_length(self.__SHORT_TERM_1)):
                     order = self.__sell()
-                self.__short_term_1_order = []
+                om.clear(self.__SHORT_TERM_1)
 
     # Buy order
     # TODO make a suitable order
@@ -224,8 +225,8 @@ class VegasTunnelCompoundLong(object):
 
     # Total number of current open orders
     def __count_current_open_orders(self):
-        return len(self.__long_term_1_order) + len(self.__long_term_2_order) + len(self.__mid_term_1_order) + len(
-            self.__short_term_1_order)
+        return om.get_length(self.__LONG_TERM_1) + om.get_length(self.__LONG_TERM_2) + om.get_length(
+            self.__MID_TERM_1) + om.get_length(self.__SHORT_TERM_1)
 
     @staticmethod
     def __crossed_above(s1, s2) -> bool:

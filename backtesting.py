@@ -2,8 +2,6 @@ import json
 import logging
 from datetime import datetime, timedelta
 
-import pandas as pd
-
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date
 from strategy.MomClassic import MomClassic
@@ -57,14 +55,8 @@ if __name__ == "__main__":
     with open('./backtest_config.json') as f:
         config = json.load(f)
 
-    # Load history records
-    # TODO Raise file not found error
-    history = pd.read_csv(f'{config["data_dir"]}{config["pair"]}_{config["interval"]}.csv')
-
     # Load trading bot
-    bot = BackTestBot(history, config['balance'], config['trade_leverage'],
-                      config['max_leverage'],
-                      config['taker_fee'], config['maker_fee'])
+    bot = BackTestBot(config)
 
     # Load strategy
     strategy = MomClassic(bot)

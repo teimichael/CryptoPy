@@ -2,6 +2,8 @@ import json
 import logging
 from datetime import datetime
 
+import pandas as pd
+
 from core.model import Order
 from core.performance import get_performance
 from core.util import str_to_timestamp
@@ -10,28 +12,29 @@ from core.util import str_to_timestamp
 # Backtesting Bot
 # TODO considering balance
 class BackTestBot(object):
-    def __init__(self, history, balance: float = 1.0,
-                 max_leverage: float = 100, trade_leverage: float = 1, taker_fee: float = 0.04,
-                 maker_fee: float = 0.02):
-        # Historical records
-        self.__history = history
+    def __init__(self, config):
+        # History cache
+        self.__history = {}
+
+        # Data directory
+        self.__data_dir = config["data_dir"]
+
+        # Interval
+        self.__interval = config["interval"]
 
         # Record current time
         self.__current_time = str_to_timestamp('2019-09-10 00:00:00')
 
-        # Record current price
-        self.__update_current_price()
-
         # Current balance
-        self.__balance = balance
+        self.__balance = config['balance']
 
         # Fee
-        self.__taker_rate = taker_fee
-        self.__maker_rate = maker_fee
+        self.__taker_rate = config['taker_fee']
+        self.__maker_rate = config['maker_fee']
 
         # Trade leverage
-        self.__max_leverage = max_leverage
-        self.__trade_leverage = trade_leverage
+        self.__max_leverage = config['max_leverage']
+        self.__trade_leverage = config['trade_leverage']
 
         # Order ID Issuer
         self.__order_id = 0
@@ -44,40 +47,25 @@ class BackTestBot(object):
             if o['type'] == "market" and o['status'] == "unfilled":
                 # Fill all unfilled market orders
                 o['status'] = "filled"
-            elif o['type'] == "limit" and o['status'] == "unfilled" and self.__current_price['low'] <= o['price'] <= \
-                    self.__current_price['high']:
-                # Fill all limit orders of which price is between low and high of the last record
-                o['status'] = "filled"
+            elif o['type'] == "limit" and o['status'] == "unfilled":
+                h, i = self.__load_history(o['symbol'], self.__interval)
+                price = h.iloc[i]
+                if price['Low'] <= o['price'] <= price['High']:
+                    # Fill all limit orders of which price is between low and high of the last record
+                    o['status'] = "filled"
 
         # Update current time
         self.__current_time = int(next_time.timestamp() * 1000)
-
-        # Update current price
-        self.__update_current_price()
-
-    def __update_current_price(self):
-        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1
-        current_price_record = self.__history.iloc[i[0]]
-
-        # Record current price
-        self.__current_price = {
-            "open": current_price_record['Open'],
-            "high": current_price_record['High'],
-            "low": current_price_record['Low'],
-            "close": current_price_record['Close'],
-            "volume": current_price_record['Volume']
-        }
 
     # Return limited history before current time with duplicated latest time
     # Real bot will return limited history before and including current time
     # TODO symbol and timeframe
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 500) -> dict:
-        h = self.__history
-        i = h.index[h['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1, 'Lack backtesting data.'
+        # Load history
+        h, i = self.__load_history(symbol, timeframe)
+
         # From dataframe to list
-        h = h.iloc[i[0] - limit: i[0]].values.tolist()
+        h = h.iloc[i - limit: i].values.tolist()
 
         # Duplicate last record (due to the unfinished k-line data in real)
         h.append(h[-1])
@@ -89,11 +77,11 @@ class BackTestBot(object):
         return h
 
     def get_ticker(self, symbol: str) -> dict:
-        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1
+        # Load history
+        h, i = self.__load_history(symbol, self.__interval)
         return dict(
             symbol=symbol,
-            last=self.__history.iloc[i[0]]['Open'],
+            last=h.iloc[i]['Open'],
             timestamp=self.__current_time
         )
 
@@ -104,12 +92,12 @@ class BackTestBot(object):
         return o
 
     def buy_market(self, symbol: str, amount: float) -> Order:
-        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1
+        # Load history
+        h, i = self.__load_history(symbol, self.__interval)
 
         # Assume market price is close to the open price of the next record
         # TODO Check whether balance is enough to buy
-        o = Order(self.__order_id, symbol, 'market', 'buy', amount, self.__history.iloc[i[0]]['Open'],
+        o = Order(self.__order_id, symbol, 'market', 'buy', amount, h.iloc[i]['Open'],
                   self.__current_time)
         self.__order_history.append(o)
         self.__order_id += 1
@@ -122,10 +110,10 @@ class BackTestBot(object):
         return o
 
     def sell_market(self, symbol: str, amount: float) -> Order:
-        i = self.__history.index[self.__history['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1
+        # Load history
+        h, i = self.__load_history(symbol, self.__interval)
         # TODO Check whether amount is enough to sell
-        o = Order(self.__order_id, symbol, 'market', 'sell', amount, self.__history.iloc[i[0]]['Open'],
+        o = Order(self.__order_id, symbol, 'market', 'sell', amount, h.iloc[i]['Open'],
                   self.__current_time)
         self.__order_history.append(o)
         self.__order_id += 1
@@ -168,3 +156,16 @@ class BackTestBot(object):
         perf = get_performance(self.__order_history)
         perf = json.dumps(perf.__dict__)
         logging.info(perf)
+
+    # Return <History, Index of the current time>
+    def __load_history(self, symbol: str, timeframe: str):
+        key = symbol + timeframe
+        if key not in self.__history.keys():
+            self.__history[key] = pd.read_csv(f'{self.__data_dir}{symbol.replace("/", "")}_{timeframe}.csv')
+
+        h = self.__history[key]
+        assert len(h) > 0, 'Lack backtesting data.'
+
+        i = h.index[h['Timestamp'] == self.__current_time].tolist()
+        assert len(i) == 1, 'Backtesting data corrupted.'
+        return h, i[0]

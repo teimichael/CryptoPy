@@ -42,6 +42,9 @@ class BackTestBot(object):
         # Order history
         self.__order_history = []
 
+        # Order record storage
+        self.__order_record = {}
+
     def next(self, next_time: datetime):
         for o in self.__order_history:
             if o['type'] == "market" and o['status'] == "unfilled":
@@ -169,3 +172,20 @@ class BackTestBot(object):
         i = h.index[h['Timestamp'] == self.__current_time].tolist()
         assert len(i) == 1, 'Backtesting data corrupted.'
         return h, i[0]
+
+    def create_order_record(self, name: str, order):
+        o_id = order['id']
+        if name in self.__order_record.keys():
+            self.__order_record[name].append(o_id)
+        else:
+            self.__order_record[name] = [o_id]
+
+    def get_order_record_length(self, name: str):
+        if name in self.__order_record.keys():
+            return len(self.__order_record[name])
+        else:
+            return 0
+
+    def clear_order_record(self, name: str):
+        if name in self.__order_record.keys():
+            self.__order_record[name] = []

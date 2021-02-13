@@ -4,6 +4,7 @@ import logging
 import ccxt
 from tenacity import *
 
+from core import order_manager as om
 from core.model import Order
 from core.performance import get_performance
 
@@ -83,14 +84,14 @@ class EmulateBot(object):
 
     def buy_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)
-        o = Order(self.__order_id,symbol, 'market', 'buy', amount, ticker['last'])
+        o = Order(self.__order_id, symbol, 'market', 'buy', amount, ticker['last'])
         self.__order_history.append(o)
         self.__order_id += 1
         logging.info('buy (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
-        o = Order(self.__order_id,symbol, 'limit', 'sell', amount, price)
+        o = Order(self.__order_id, symbol, 'limit', 'sell', amount, price)
         self.__order_history.append(o)
         self.__order_id += 1
         logging.info('sell (' + str(amount) + ') at (' + str(price) + ')')
@@ -98,7 +99,7 @@ class EmulateBot(object):
 
     def sell_market(self, symbol: str, amount: float) -> Order:
         ticker = self.exchange.fetch_ticker(symbol)
-        o = Order(self.__order_id,symbol, 'market', 'sell', amount, ticker['last'])
+        o = Order(self.__order_id, symbol, 'market', 'sell', amount, ticker['last'])
         self.__order_history.append(o)
         self.__order_id += 1
         logging.info('sell (' + str(amount) + ') at (' + str(ticker['last']) + ')')
@@ -153,3 +154,15 @@ class EmulateBot(object):
                 return self.exchange.fetchOpenOrders(symbol=symbol)
             else:
                 return self.exchange.fetchOpenOrders(symbol=symbol, limit=limit)
+
+    @staticmethod
+    def create_order_record(name: str, order):
+        om.create(name, order)
+
+    @staticmethod
+    def get_order_record_length(name: str):
+        return om.get_length(name)
+
+    @staticmethod
+    def clear_order_record(name: str):
+        om.clear(name)

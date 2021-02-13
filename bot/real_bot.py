@@ -4,6 +4,8 @@ import logging
 import ccxt
 from tenacity import *
 
+from core import order_manager as om
+
 
 # Real-Trading Bot
 class RealBot(object):
@@ -171,3 +173,15 @@ class RealBot(object):
                 return self.exchange.fetchOpenOrders(symbol=symbol)
             else:
                 return self.exchange.fetchOpenOrders(symbol=symbol, limit=limit)
+
+    @staticmethod
+    def create_order_record(name: str, order):
+        om.create(name, order)
+
+    @staticmethod
+    def get_order_record_length(name: str):
+        return om.get_length(name)
+
+    @staticmethod
+    def clear_order_record(name: str):
+        om.clear(name)

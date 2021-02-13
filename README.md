@@ -54,8 +54,8 @@ Write your indicators here.
 
 - Vegas Tunnel Compound Long Strategy
 
-> - VTCompIndicator.py: indicators for Vegas Tunnel Compound Long Strategy
-> - VTCompound.py: Vegas Tunnel Compound Strategy
+> - VTCompLongIndicator.py: indicators for Vegas Tunnel Compound Long Strategy
+> - VTCompLong.py: Vegas Tunnel Compound Long Strategy
 
 - Bollinger Bands Classic Strategy
 

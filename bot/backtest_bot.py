@@ -169,9 +169,9 @@ class BackTestBot(object):
         h = self.__history[key]
         assert len(h) > 0, 'Lack backtesting data.'
 
-        i = h.index[h['Timestamp'] == self.__current_time].tolist()
-        assert len(i) == 1, 'Backtesting data corrupted.'
-        return h, i[0]
+        i = h.index[h['Timestamp'] <= self.__current_time].tolist()
+        assert len(i) >= 1, 'Backtesting data corrupted.'
+        return h, i[-1]
 
     def create_order_record(self, name: str, order):
         o_id = order['id']

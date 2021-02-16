@@ -83,13 +83,16 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 > - backtest_config.json: configuration file
 > - backtesting.py: entry script
 
-### Support time frame
+### Configuration
 
-- 1h
-- 15m
-- 5m
-- 3m
-- 1m
+- **data_dir**: directory of historical data
+- **start_time**: start time of backtesting
+- **end_time**: end time of backtesting
+- **interval**: frequency of strategy execution
+- **balance**: initial balance
+- **taker_fee**: taker fee
+- **maker_fee**: maker fee
+- **data**: configuration for data collector
 
 Notice that *start_date* and *end_date* are set with local timezone.
 
@@ -102,10 +105,13 @@ Emulate real trading in real time. It needs to access to your trading account to
 or cancel any orders.
 
 ### Configuration
+
 - **exchange_market**: binance (default), okex
-- **api_access**: Replace *YOUR_API_KEY* and *YOUR_SECRET* with your api key and secret key. If you do not have a pair, please refer
-to [How to create API key in Binance](https://www.binance.com/en/support/faq/360002502072-How-to-create-API) or [How to create API key in OKEx](https://www.okex.com/docs/en/).
-- **exchange_type**: spot, future
+- **api_access**: Replace *YOUR_API_KEY* and *YOUR_SECRET* with your api key and secret key. If you do not have a pair,
+  please refer
+  to [How to create API key in Binance](https://www.binance.com/en/support/faq/360002502072-How-to-create-API)
+  or [How to create API key in OKEx](https://www.okex.com/docs/en/).
+- **exchange_type**: spot, future (Binance Perpetual), swap (OKEx Perpetual)
 
 ### Dependency
 

@@ -11,7 +11,7 @@ RESULTS.
 ## Current Features
 
 - [x] **Based on Python 3.7+**
-- [x] **Binance API Integration**
+- [x] **Binance / OKEx API Integration**
 - [x] **Spot / Futures**
 - [x] **Data Collection** (Binance)
 - [ ] **Backtesting**
@@ -102,9 +102,10 @@ Emulate real trading in real time. It needs to access to your trading account to
 or cancel any orders.
 
 ### Configuration
-
-Replace *YOUR_API_KEY* and *YOUR_SECRET*. If you do not have the pair, please refer
-to [How to create API](https://www.binance.com/en/support/faq/360002502072-How-to-create-API).
+- **exchange_market**: binance (default), okex
+- **api_access**: Replace *YOUR_API_KEY* and *YOUR_SECRET* with your api key and secret key. If you do not have a pair, please refer
+to [How to create API key in Binance](https://www.binance.com/en/support/faq/360002502072-How-to-create-API) or [How to create API key in OKEx](https://www.okex.com/docs/en/).
+- **exchange_type**: spot, future
 
 ### Dependency
 

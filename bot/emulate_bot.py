@@ -13,16 +13,28 @@ from core.performance import get_performance
 class EmulateBot(object):
 
     def __init__(self, config):
-        logging.info("Creating emulate bot...")
+        if config["exchange_market"] == "okex":
+            logging.info("Creating OKEx emulate bot...")
 
-        self.exchange = ccxt.binance({
-            'apiKey': config["api_access"]["api_key"],
-            'secret': config["api_access"]["secret"],
-            'enableRateLimit': True,
-            'options': {
-                'defaultType': config["exchange_type"],
-            },
-        })
+            self.exchange = ccxt.okex({
+                'apiKey': config["api_access"]["api_key"],
+                'secret': config["api_access"]["secret"],
+                'enableRateLimit': True,
+                'options': {
+                    'defaultType': config["exchange_type"],
+                },
+            })
+        else:
+            logging.info("Creating Binance emulate bot...")
+
+            self.exchange = ccxt.binance({
+                'apiKey': config["api_access"]["api_key"],
+                'secret': config["api_access"]["secret"],
+                'enableRateLimit': True,
+                'options': {
+                    'defaultType': config["exchange_type"],
+                },
+            })
 
         # Load markets
         markets = self.exchange.load_markets()

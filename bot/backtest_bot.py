@@ -32,10 +32,6 @@ class BackTestBot(object):
         self.__taker_rate = config['taker_fee']
         self.__maker_rate = config['maker_fee']
 
-        # Trade leverage
-        self.__max_leverage = config['max_leverage']
-        self.__trade_leverage = config['trade_leverage']
-
         # Order ID Issuer
         self.__order_id = 0
 

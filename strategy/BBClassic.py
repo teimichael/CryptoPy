@@ -65,7 +65,10 @@ class BBClassic(object):
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
 
-        # TODO Ensure the latest record (rec[-1]) is after the exact time point to execute the strategy
+        # Suspend running if the number of records is below the requirement
+        if len(rec) < self.__record_limit:
+            logging.info("Suspending.")
+            return
 
         # Calculate indicators
         indicator = Indicator(rec, self.__indicator_length_limit)

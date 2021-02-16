@@ -12,11 +12,11 @@ RESULTS.
 
 - [x] **Based on Python 3.7+**
 - [x] **Binance / OKEx API Integration**
-- [x] **Spot / Futures**
-- [x] **Data Collection** (Binance)
+- [x] **Spot / Perpetual**
+- [x] **Data Collection** (Binance only)
 - [ ] **Backtesting**
-- [x] **Real-Time Emulation** (Binance)
-- [ ] **Real trading** (Binance)
+- [x] **Real-Time Emulation**
+- [ ] **Real trading**
 - [x] **Common Indicator Support**: EMA, MACD, Bollinger Bands, etc.
 - [x] **Full OHLCV-based Strategy Support**: portable strategy and seamlessly compatible among backtesting, emulation,
   and real trading.

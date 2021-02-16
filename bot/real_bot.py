@@ -163,7 +163,7 @@ class RealBot(object):
         if limit is None:
             return self.exchange.fetch_ohlcv(symbol, timeframe)
         else:
-            return self.exchange.fetch_ohlcv(symbol, timeframe, params={'limit': limit})
+            return self.exchange.fetch_ohlcv(symbol, timeframe, limit=limit)
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
            after=after_log(logging.getLogger(__name__), logging.ERROR))

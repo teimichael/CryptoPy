@@ -17,6 +17,7 @@ class RealBot(object):
             self.exchange = ccxt.okex({
                 'apiKey': config["api_access"]["api_key"],
                 'secret': config["api_access"]["secret"],
+                'password': config["api_access"]["password"],
                 'enableRateLimit': True,
                 'options': {
                     'defaultType': config["exchange_type"],

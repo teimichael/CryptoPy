@@ -2,7 +2,8 @@
   "exchange_market": "binance",
   "api_access": {
     "api_key": "YOUR_API_KEY",
-    "secret": "YOUR_SECRET"
+    "secret": "YOUR_SECRET",
+    "password": "YOUR_PASSWORD"
   },
   "exchange_type": "future"
 }

@@ -3,7 +3,8 @@
   "start_time": "2021-02-01 00:00:00",
   "end_time": "2021-02-05 00:00:00",
   "interval": "5m",
-  "balance": 1.0,
+  "balance": 1000,
+  "pair": "BTC/USDT",
   "taker_fee": 0.04,
   "maker_fee": 0.02,
   "data": {

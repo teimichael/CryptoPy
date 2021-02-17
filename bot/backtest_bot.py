@@ -47,7 +47,7 @@ class BackTestBot(object):
                 # Fill all unfilled market orders
                 o['status'] = "filled"
             elif o['type'] == "limit" and o['status'] == "unfilled":
-                h, i = self.__load_history(o['symbol'], self.__interval)
+                h, i = self.load_history(o['symbol'], self.__interval)
                 price = h.iloc[i]
                 if price['Low'] <= o['price'] <= price['High']:
                     # Fill all limit orders of which price is between low and high of the last record
@@ -61,7 +61,7 @@ class BackTestBot(object):
     # TODO symbol and timeframe
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 500) -> dict:
         # Load history
-        h, i = self.__load_history(symbol, timeframe)
+        h, i = self.load_history(symbol, timeframe)
 
         # From dataframe to list
         h = h.iloc[i - limit: i].values.tolist()
@@ -77,7 +77,7 @@ class BackTestBot(object):
 
     def get_ticker(self, symbol: str) -> dict:
         # Load history
-        h, i = self.__load_history(symbol, self.__interval)
+        h, i = self.load_history(symbol, self.__interval)
         return dict(
             symbol=symbol,
             last=h.iloc[i]['Open'],
@@ -92,7 +92,7 @@ class BackTestBot(object):
 
     def buy_market(self, symbol: str, amount: float) -> Order:
         # Load history
-        h, i = self.__load_history(symbol, self.__interval)
+        h, i = self.load_history(symbol, self.__interval)
 
         # Assume market price is close to the open price of the next record
         # TODO Check whether balance is enough to buy
@@ -110,7 +110,7 @@ class BackTestBot(object):
 
     def sell_market(self, symbol: str, amount: float) -> Order:
         # Load history
-        h, i = self.__load_history(symbol, self.__interval)
+        h, i = self.load_history(symbol, self.__interval)
         # TODO Check whether amount is enough to sell
         o = Order(self.__order_id, symbol, 'market', 'sell', amount, h.iloc[i]['Open'],
                   self.__current_time)
@@ -156,8 +156,8 @@ class BackTestBot(object):
         perf = json.dumps(perf.__dict__)
         logging.info(perf)
 
-    # Return <History, Index of the current time>
-    def __load_history(self, symbol: str, timeframe: str):
+    # Return <History, Index of the current time | Index of the assigned timestamp>
+    def load_history(self, symbol: str, timeframe: str, time: datetime = None):
         key = symbol + timeframe
         if key not in self.__history.keys():
             self.__history[key] = pd.read_csv(f'{self.__data_dir}{symbol.replace("/", "")}_{timeframe}.csv')
@@ -165,7 +165,8 @@ class BackTestBot(object):
         h = self.__history[key]
         assert len(h) > 0, 'Lack backtesting data.'
 
-        i = h.index[h['Timestamp'] <= self.__current_time].tolist()
+        timestamp = self.__current_time if time is None else int(time.timestamp() * 1000)
+        i = h.index[h['Timestamp'] <= timestamp].tolist()
         assert len(i) >= 1, 'Backtesting data corrupted.'
         return h, i[-1]
 

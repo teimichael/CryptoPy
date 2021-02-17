@@ -90,6 +90,7 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 - **end_time**: end time of backtesting
 - **interval**: frequency of strategy execution
 - **balance**: initial balance
+- **pair**: pair for computing *Buy & Hold*
 - **taker_fee**: taker fee
 - **maker_fee**: maker fee
 - **data**: configuration for data collector

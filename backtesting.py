@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date, parse_timeframe
-from strategy.example.VTCompLong import VegasTunnelCompoundLong
+from strategy.VTComp import VegasTunnelCompound
 
 if __name__ == "__main__":
     # Set logging
@@ -18,13 +18,11 @@ if __name__ == "__main__":
     bot = BackTestBot(config)
 
     # Load strategy
-    strategy = VegasTunnelCompoundLong(bot)
-
-    # Calculate strategy execution times
-    start = str_to_date(config['start_time'])
-    end = str_to_date(config['end_time'])
+    strategy = VegasTunnelCompound(bot)
 
     # Execute strategy
+    start = str_to_date(config['start_time'])
+    end = str_to_date(config['end_time'])
     timeframe_in_seconds = parse_timeframe(config['interval'])
     current = start
     i = 0
@@ -41,3 +39,12 @@ if __name__ == "__main__":
     bot.output_performance()
 
     # Buy & hold
+    balance = config['balance']
+    h, i = bot.load_history(config['pair'], config['interval'], start)
+    start_price = h.iloc[i]['Open']
+    h, i = bot.load_history(config['pair'], config['interval'], end)
+    end_price = h.iloc[i]['Open']
+    buy_hold = {
+        "pnl": balance / start_price * end_price - balance
+    }
+    logging.info(buy_hold)

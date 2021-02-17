@@ -2,12 +2,11 @@ import json
 import logging
 from datetime import datetime
 
-from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-from bot.real_bot import RealBot
 from bot.emulate_bot import EmulateBot
-from strategy.VTCompLong import VegasTunnelCompoundLong
+from strategy.example.VTCompLong import VegasTunnelCompoundLong
 
 
 # Schedule balance log

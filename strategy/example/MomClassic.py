@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.indicator.MomClassicIndicator import Indicator
+from strategy.example.indicator.MomClassicIndicator import Indicator
 
 
 # Momentum Classic Strategy

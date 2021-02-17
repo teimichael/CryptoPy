@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.indicator.VTCompLongIndicator import Indicator, IndicatorCheck
+from strategy.example.indicator.VTCompLongIndicator import Indicator, IndicatorCheck
 
 
 # Vegas Tunnel Compound Strategy (long)
@@ -141,7 +141,7 @@ class VegasTunnelCompoundLong(object):
         # TODO Check connection
 
         log_time = (str(current_time) + ' ') if not (current_time is None) else ''
-        logging.info(log_time + "Executing Vegas Tunnel Compound Strategy.")
+        logging.info(log_time + "Executing Vegas Tunnel Compound Long Strategy.")
 
         # Cancel unfilled orders
         self.__bot.cancel_unfilled_orders(self.__symbol, self.__max_open_order)

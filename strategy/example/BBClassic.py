@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from core import trade_lib as tl
-from strategy.indicator.BBClassicIndicator import Indicator
+from strategy.example.indicator.BBClassicIndicator import Indicator
 
 
 # Bollinger Bands Classic Strategy (long)

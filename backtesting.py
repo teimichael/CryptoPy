@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date, parse_timeframe
-from strategy.VTCompLong import VegasTunnelCompoundLong
+from strategy.example.VTCompLong import VegasTunnelCompoundLong
 
 if __name__ == "__main__":
     # Set logging

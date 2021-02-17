@@ -85,6 +85,8 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 
 ### Configuration
 
+- **strategy**: name of strategy
+- **example**: if the strategy is a demo
 - **data_dir**: directory of historical data
 - **start_time**: start time of backtesting
 - **end_time**: end time of backtesting

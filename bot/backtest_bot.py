@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from core.model import Order
@@ -156,7 +157,20 @@ class BackTestBot(object):
 
     def output_performance(self):
         logging.info('Performance')
+        # Calculate performance model
         perf = get_performance(self.__order_history)
+
+        # Plot PnL history
+        plt.plot(perf.pnl_history)
+        plt.show()
+
+        # Plot cumulative PnL history
+        plt.plot(perf.cum_pnl_history)
+        plt.show()
+
+        # Print performance information
+        delattr(perf, 'pnl_history')
+        delattr(perf, 'cum_pnl_history')
         perf = json.dumps(perf.__dict__)
         logging.info(perf)
 

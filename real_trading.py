@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from bot.emulate_bot import EmulateBot
-from strategy.example.VTCompLong import VegasTunnelCompoundLong
+from strategy.example.VTCompLong import VTCompLong
 
 
 # Schedule balance log
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     bot = EmulateBot(config)
 
     # Load strategy
-    strategy = VegasTunnelCompoundLong(bot)
+    strategy = VTCompLong(bot)
 
     # Schedule balance log
     schedule_balance_log(bot)

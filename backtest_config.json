@@ -1,4 +1,6 @@
 {
+  "strategy": "VTCompLong",
+  "example": true,
   "data_dir": "./data/binance/futures/clean/",
   "start_time": "2021-02-01 00:00:00",
   "end_time": "2021-02-05 00:00:00",

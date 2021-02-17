@@ -7,7 +7,7 @@ from strategy.example.indicator.BBCompIndicator import Indicator
 
 
 # Bollinger Bands Compound strategy (Long-term Best: 15m)
-class BollingerBands(object):
+class BBCompound(object):
     # Pair
     __symbol = 'BTC/USDT'
 

@@ -155,22 +155,24 @@ class BackTestBot(object):
                     logging.info(str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
                         o['amount']) + ') at (' + str(o['price']) + ')')
 
-    def output_performance(self):
+    def output_performance(self, plot: bool = False):
         logging.info('Performance')
         # Calculate performance model
         perf = get_performance(self.__order_history)
 
-        # Plot PnL history
-        plt.plot(perf.pnl_history)
-        plt.show()
+        if plot:
+            # Plot PnL history
+            plt.plot(perf.pnl_history)
+            plt.show()
 
-        # Plot cumulative PnL history
-        plt.plot(perf.cum_pnl_history)
-        plt.show()
+            # Plot cumulative PnL history
+            plt.plot(perf.cum_pnl_history)
+            plt.show()
+
+            delattr(perf, 'pnl_history')
+            delattr(perf, 'cum_pnl_history')
 
         # Print performance information
-        delattr(perf, 'pnl_history')
-        delattr(perf, 'cum_pnl_history')
         perf = json.dumps(perf.__dict__)
         logging.info(perf)
 

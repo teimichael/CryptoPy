@@ -6,7 +6,7 @@ from strategy.example.indicator.VTCompLongIndicator import Indicator, IndicatorC
 
 
 # Vegas Tunnel Compound Strategy (long)
-class VegasTunnelCompoundLong(object):
+class VTCompLong(object):
     # Pair
     __symbol = 'BTC/USDT'
 

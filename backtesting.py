@@ -1,10 +1,10 @@
+import importlib
 import json
 import logging
 from datetime import timedelta
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date, parse_timeframe
-from strategy.example.VTCompLong import VegasTunnelCompoundLong
 
 if __name__ == "__main__":
     # Set logging
@@ -18,7 +18,10 @@ if __name__ == "__main__":
     bot = BackTestBot(config)
 
     # Load strategy
-    strategy = VegasTunnelCompoundLong(bot)
+    m = 'strategy.'
+    m += 'example.' + config['strategy'] if config['example'] else config['strategy']
+    strategy_cls = getattr(importlib.import_module(m), config['strategy'])
+    strategy = strategy_cls(bot)
 
     # Execute strategy
     start = str_to_date(config['start_time'])

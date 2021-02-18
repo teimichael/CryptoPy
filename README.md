@@ -22,6 +22,12 @@ RESULTS.
   and real trading.
 - [x] **Demo Vegas Tunnel Strategy**
 
+## Set Up
+
+> setup/setup.sh
+
+One-click environment setup for Ubuntu (tested on Ubuntu 20.04.2 LTS)
+
 ## Data Collector
 
 > - backtest_config.json -> 'data': configuration file

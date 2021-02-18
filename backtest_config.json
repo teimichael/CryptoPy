@@ -4,7 +4,7 @@
   "data_dir": "./data/binance/futures/clean/",
   "start_time": "2021-02-01 00:00:00",
   "end_time": "2021-02-05 00:00:00",
-  "interval": "5m",
+  "interval": "15m",
   "balance": 1000,
   "pair": "BTC/USDT",
   "taker_fee": 0.04,
@@ -16,7 +16,7 @@
     "quote": "BTC",
     "futures": true,
     "time_frame": "15m",
-    "start_date": "01/01/2017",
+    "start_date": "01/01/2021",
     "end_date": "02/15/2021"
   }
 }

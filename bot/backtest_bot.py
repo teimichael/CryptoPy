@@ -161,12 +161,20 @@ class BackTestBot(object):
         perf = get_performance(self.__order_history)
 
         if plot:
+            fig, (ax1, ax2) = plt.subplots(2)
+            fig.suptitle('PnL Graphs')
             # Plot PnL history
-            plt.plot(perf.pnl_history)
-            plt.show()
-
+            ax1.plot(perf.pnl_history)
+            ax1.set_title("PnL")
+            ax1.set_xlabel("Time")
+            ax1.set_ylabel("PnL")
             # Plot cumulative PnL history
-            plt.plot(perf.cum_pnl_history)
+            ax2.plot(perf.cum_pnl_history)
+            ax2.set_title("Cummulative PnL")
+            ax2.set_xlabel("Time")
+            ax2.set_ylabel("Cum PnL")
+
+            plt.tight_layout()
             plt.show()
 
             delattr(perf, 'pnl_history')

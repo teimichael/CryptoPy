@@ -39,7 +39,7 @@ if __name__ == "__main__":
     bot.output_order_history("filled")
 
     # Output performance
-    bot.output_performance()
+    bot.output_performance(config['plot'])
 
     # Buy & hold
     bot.output_buy_hold(start, end)

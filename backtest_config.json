@@ -1,7 +1,6 @@
 {
   "strategy": "VTCompLong",
   "example": true,
-  "data_dir": "./data/binance/futures/clean/",
   "start_time": "2021-02-01 00:00:00",
   "end_time": "2021-02-05 00:00:00",
   "interval": "15m",
@@ -9,6 +8,8 @@
   "pair": "BTC/USDT",
   "taker_fee": 0.04,
   "maker_fee": 0.02,
+  "plot": true,
+  "data_dir": "./data/binance/futures/clean/",
   "data": {
     "clean_data_dir": "./data/binance/futures/clean/",
     "raw_data_dir": "./data/binance/futures/",

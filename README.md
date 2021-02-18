@@ -92,8 +92,7 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 ### Configuration
 
 - **strategy**: name of strategy
-- **example**: if the strategy is a demo
-- **data_dir**: directory of historical data
+- **example**: whether the strategy is a demo
 - **start_time**: start time of backtesting
 - **end_time**: end time of backtesting
 - **interval**: frequency of strategy execution
@@ -101,6 +100,8 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 - **pair**: pair for computing *Buy & Hold*
 - **taker_fee**: taker fee
 - **maker_fee**: maker fee
+- **plot**: whether plotting results
+- **data_dir**: directory of historical data
 - **data**: configuration for data collector
 
 Notice that *start_date* and *end_date* are set with local timezone.

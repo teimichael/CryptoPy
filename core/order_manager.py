@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def create(name: str, order):
-    rec = pd.DataFrame({'timestamp': [order['timestamp']], 'id': [order['id']]})
+    rec = pd.DataFrame({'timestamp': [order['timestamp']], 'id': [order['id']], 'amount': [order['amount']]})
     if os.path.exists(name):
         store = pd.read_csv(name)
         store = store.append(rec, ignore_index=True)

@@ -43,6 +43,11 @@ class RealBot(object):
             info = {}
             json.dump(info, outfile)
 
+        # Create order history file
+        with open('orders.json', 'w') as outfile:
+            order = {}
+            json.dump(order, outfile)
+
         logging.info("REAL Bot created.")
 
     def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:

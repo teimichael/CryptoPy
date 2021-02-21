@@ -40,6 +40,7 @@ class EmulateBot(object):
         # Load markets
         markets = self.exchange.load_markets()
 
+        # Track complete order history
         self.__order_history = []
 
         # Order ID Issuer
@@ -49,6 +50,11 @@ class EmulateBot(object):
         with open('info.json', 'w') as outfile:
             info = {}
             json.dump(info, outfile)
+
+        # Create order record file
+        with open('orders.json', 'w') as outfile:
+            order = {}
+            json.dump(order, outfile)
 
         logging.info("Emulate bot created.")
 

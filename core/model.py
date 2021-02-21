@@ -3,6 +3,7 @@ def Order(id: int, symbol: str, type: str, side: str, amount: float, price=None,
           status="unfilled") -> dict:
     return {
         'id': id,
+        'clientOrderId': None,
         'symbol': symbol,
         'type': type,
         'side': side,

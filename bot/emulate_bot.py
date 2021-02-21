@@ -45,6 +45,11 @@ class EmulateBot(object):
         # Order ID Issuer
         self.__order_id = 0
 
+        # Create info file
+        with open('info.json', 'w') as outfile:
+            info = {}
+            json.dump(info, outfile)
+
         logging.info("Emulate bot created.")
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
@@ -137,19 +142,22 @@ class EmulateBot(object):
     def output_balance(self):
         balance = self.get_balance()
         if balance is not None:
-            b = {
-                'totalWalletBalance': balance['totalWalletBalance'],
-                'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
-                'totalMarginBalance': balance['totalMarginBalance'],
-                'totalInitialMargin': balance['totalInitialMargin'],
-                'totalMaintMargin': balance['totalMaintMargin'],
-                'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
-                'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
-                'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
-                'totalCrossUnPnl': balance['totalCrossUnPnl'],
-                'availableBalance': balance['availableBalance']
-            }
-            logging.info(json.dumps(b))
+            with open('info.json') as info_file:
+                info = json.load(info_file)
+                info['balance'] = {
+                    'totalWalletBalance': balance['totalWalletBalance'],
+                    'totalUnrealizedProfit': balance['totalUnrealizedProfit'],
+                    'totalMarginBalance': balance['totalMarginBalance'],
+                    'totalInitialMargin': balance['totalInitialMargin'],
+                    'totalMaintMargin': balance['totalMaintMargin'],
+                    'totalPositionInitialMargin': balance['totalPositionInitialMargin'],
+                    'totalOpenOrderInitialMargin': balance['totalOpenOrderInitialMargin'],
+                    'totalCrossWalletBalance': balance['totalCrossWalletBalance'],
+                    'totalCrossUnPnl': balance['totalCrossUnPnl'],
+                    'availableBalance': balance['availableBalance']
+                }
+                with open('info.json', 'w') as outfile:
+                    json.dump(info, outfile)
         else:
             logging.info('Cannot fetch balance due to exceptions.')
 

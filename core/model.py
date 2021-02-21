@@ -1,5 +1,6 @@
 # Order model
-def Order(id: int,symbol: str, type: str, side: str, amount: float, price=None, timestamp=None, status="unfilled") -> dict:
+def Order(id: int, symbol: str, type: str, side: str, amount: float, price=None, timestamp=None,
+          status="unfilled") -> dict:
     return {
         'id': id,
         'symbol': symbol,

@@ -27,7 +27,11 @@ def integrity_check(symbol: str, time_frame: str, raw_data_dir: str):
         for name in files:
             df = pd.read_csv(os.path.join(root, name))
             # 1h: 25, 15m: 96, 5m: 288
+            if time_frame == '4h' and len(df) != 6:
+                print(name)
             if time_frame == '1h' and len(df) != 25:
+                print(name)
+            if time_frame == '30m' and len(df) != 48:
                 print(name)
             elif time_frame == '15m' and len(df) != 96:
                 print(name)

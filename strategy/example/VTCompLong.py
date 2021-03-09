@@ -217,8 +217,8 @@ class VTCompLong(object):
                     order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_1)
 
-        orders = self.__get_orders(self.__LONG_TERM_2)
         # Long-term 2 trigger (close)
+        orders = self.__get_orders(self.__LONG_TERM_2)
         if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close long-term long strategy 2.")
@@ -227,9 +227,8 @@ class VTCompLong(object):
                     order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_2)
 
-        orders = self.__get_orders(self.__SHORT_TERM_1)
-
         # Short-term trigger (close)
+        orders = self.__get_orders(self.__SHORT_TERM_1)
         if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close short-term long strategy 1.")

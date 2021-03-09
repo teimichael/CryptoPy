@@ -180,7 +180,6 @@ class RealBot(object):
                 }
                 with open('info.json', 'w') as outfile:
                     json.dump(info, outfile)
-                logging.info(json.dumps(info['balance']))
         else:
             logging.info('Cannot fetch balance due to exceptions.')
 

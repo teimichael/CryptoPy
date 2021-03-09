@@ -12,7 +12,7 @@ from strategy.example.VTCompLong import VTCompLong
 # Schedule balance log
 def schedule_balance_log(bot):
     scheduler = BackgroundScheduler()
-    scheduler.add_job(bot.output_balance, 'cron', minute='*/15', second='30')
+    scheduler.add_job(bot.output_balance, 'cron', minute='*/5', second='30')
     scheduler.start()
 
 

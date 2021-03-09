@@ -14,7 +14,7 @@ def schedule_perf_calculation(bot):
     # Schedule recording performance
     scheduler = BackgroundScheduler()
     # Per 15 minutes (offset 30 seconds)
-    scheduler.add_job(bot.output_performance, 'cron', minute='*/15', second='30')
+    scheduler.add_job(bot.output_performance, 'cron', minute='*/5', second='30')
     scheduler.start()
 
 

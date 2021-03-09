@@ -210,17 +210,22 @@ class BackTestBot(object):
         return h, i[-1]
 
     def create_order_record(self, name: str, order):
-        o_id = order['id']
         if name in self.__order_record.keys():
-            self.__order_record[name].append(o_id)
+            self.__order_record[name].append(order)
         else:
-            self.__order_record[name] = [o_id]
+            self.__order_record[name] = [order]
 
     def get_order_record_length(self, name: str):
         if name in self.__order_record.keys():
             return len(self.__order_record[name])
         else:
             return 0
+
+    def get_orders(self, name: str) -> list:
+        if name in self.__order_record.keys():
+            return self.__order_record[name]
+        else:
+            return []
 
     def clear_order_record(self, name: str):
         if name in self.__order_record.keys():

@@ -50,6 +50,16 @@ def get_length(name: str) -> int:
     return length
 
 
+def get_all(name: str) -> list:
+    r = []
+    with open('orders.json') as orders_file:
+        orders = json.load(orders_file)
+        if name in orders.keys():
+            r = orders[name]
+
+    return r
+
+
 def Order(order):
     return {
         'id': order['id'],

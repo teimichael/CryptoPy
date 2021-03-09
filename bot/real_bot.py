@@ -210,5 +210,9 @@ class RealBot(object):
         return om.get_length(name)
 
     @staticmethod
+    def get_orders(name: str):
+        return om.get_all(name)
+
+    @staticmethod
     def clear_order_record(name: str):
         om.clear(name)

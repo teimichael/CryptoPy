@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -28,11 +29,19 @@ class VTCompLong(object):
     # Max number of open orders (included)
     __max_open_order = 10
 
-    # Slippage rate allowed while buying
-    __slippage_buy = 1 + 0.00008
+    # Current number of open orders
+    __current_open_order = 0
 
     def __init__(self, bot):
         self.__bot = bot
+        # Create strategy setting file
+        with open('setting.json', 'w') as outfile:
+            setting = {
+                'amount': self.__amount,
+                'long_weight': self.__long_weight,
+                'max_open_order': self.__max_open_order
+            }
+            json.dump(setting, outfile)
 
     __LONG_TERM_1 = "long_term_1_order"
     __LONG_TERM_2 = "long_term_2_order"
@@ -40,7 +49,7 @@ class VTCompLong(object):
     __SHORT_TERM_1 = "short_term_1_order"
 
     # Long-term 1
-    def __long_term_1(self, i: Indicator):
+    def __long_term_1(self, i: Indicator, setting, orders):
         if self.__crossed_below(i.ema144, i.ema36) and i.macd_dif > 0:
             # Check whether reached max number of open orders to prevent overbuying
             if self.__reached_max_open_order():
@@ -48,19 +57,19 @@ class VTCompLong(object):
                 return
 
             logging.info("Open long-term long strategy 1.")
-            order = self.__buy(self.__long_weight)
+            order = self.__buy(setting['amount'] * setting['long_weight'])
             if order is not None:
                 self.__create_order_record(self.__LONG_TERM_1, order)
-        elif self.__get_order_length(self.__LONG_TERM_1) > 0:
+        elif len(orders) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Close long-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__LONG_TERM_1)):
-                    order = self.__sell(self.__long_weight)
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_1)
 
     # Long-term 2
-    def __long_term_2(self, i: Indicator):
+    def __long_term_2(self, i: Indicator, setting, orders):
         if self.__crossed_below(i.low, i.ema576) and i.macd_dif > 0 and i.ema169[-1] > i.ema576[-1]:
             # Check whether reached max number of open orders to prevent overbuying
             if self.__reached_max_open_order():
@@ -68,25 +77,25 @@ class VTCompLong(object):
                 return
 
             logging.info("Open long-term long strategy 2.")
-            order = self.__buy(self.__long_weight)
+            order = self.__buy(setting['amount'] * setting['long_weight'])
             if order is not None:
                 self.__create_order_record(self.__LONG_TERM_2, order)
-        elif self.__get_order_length(self.__LONG_TERM_2) > 0:
+        elif len(orders) > 0:
             if i.macd_dif < 0 or i.ema169[-1] < i.ema676[-1]:
                 logging.info("Close long-term long strategy 2.")
 
-                for o in range(self.__get_order_length(self.__LONG_TERM_2)):
-                    order = self.__sell(self.__long_weight)
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_2)
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close long-term long strategy 2.")
 
-                for o in range(self.__get_order_length(self.__LONG_TERM_2)):
-                    order = self.__sell(self.__long_weight)
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_2)
 
     # Mid-term 1
-    def __mid_term_1(self, i: Indicator):
+    def __mid_term_1(self, i: Indicator, setting, orders):
         if self.__crossed_above(i.low, i.ema144) and i.macd_dif > 0 and i.ema144[-1] > i.ema676[-1]:
             # Check whether reached max number of open orders to prevent overbuying
             if self.__reached_max_open_order():
@@ -94,19 +103,19 @@ class VTCompLong(object):
                 return
 
             logging.info("Open mid-term long strategy 1.")
-            order = self.__buy()
+            order = self.__buy(setting['amount'])
             if order is not None:
                 self.__create_order_record(self.__MID_TERM_1, order)
-        elif self.__get_order_length(self.__MID_TERM_1) > 0:
+        elif len(orders) > 0:
             if i.macd_dif < 0 or i.ema144[-1] < i.ema676[-1]:
                 logging.info("Close mid-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__MID_TERM_1)):
-                    order = self.__sell()
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__MID_TERM_1)
 
     # Short-term 1
-    def __short_term_1(self, i: Indicator):
+    def __short_term_1(self, i: Indicator, setting, orders):
         if self.__crossed_below(i.low, i.ema36) and i.macd_dif > 0 and i.ema36[-1] > i.ema169[-1]:
             # Check whether reached max number of open orders to prevent overbuying
             if self.__reached_max_open_order():
@@ -114,26 +123,26 @@ class VTCompLong(object):
                 return
 
             # Limit max number of short-term open orders to avoid short-term fluctuation
-            if self.__get_order_length(self.__SHORT_TERM_1) >= 5:
+            if len(orders) >= 5:
                 logging.info("Cannot open short-term long strategy 1: reached max number of short-term open orders.")
                 return
 
             logging.info("Open short-term long strategy 1.")
-            order = self.__buy()
+            order = self.__buy(setting['amount'])
             if order is not None:
                 self.__create_order_record(self.__SHORT_TERM_1, order)
-        elif self.__get_order_length(self.__SHORT_TERM_1) > 0:
+        elif len(orders) > 0:
             if i.macd_dif < 0 or i.ema36[-1] < i.ema169[-1]:
                 logging.info("Close short-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__SHORT_TERM_1)):
-                    order = self.__sell()
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__SHORT_TERM_1)
             elif self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Close short-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__SHORT_TERM_1)):
-                    order = self.__sell()
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__SHORT_TERM_1)
 
     # Execute strategy
@@ -154,23 +163,39 @@ class VTCompLong(object):
             logging.info("Suspending.")
             return
 
+        # Load settings
+        with open('setting.json') as setting_file:
+            setting = json.load(setting_file)
+
+        # Load current open orders
+        long_term_1_orders = self.__get_orders(self.__LONG_TERM_1)
+        long_term_2_orders = self.__get_orders(self.__LONG_TERM_2)
+        mid_term_1_orders = self.__get_orders(self.__MID_TERM_1)
+        short_term_1_orders = self.__get_orders(self.__SHORT_TERM_1)
+        self.__current_open_order = len(long_term_1_orders) + len(long_term_2_orders) + len(mid_term_1_orders) + len(
+            short_term_1_orders)
+
         # Calculate indicators
         indicator = Indicator(rec, self.__indicator_length_limit)
 
         # Long-term long strategy 1
-        self.__long_term_1(indicator)
+        self.__long_term_1(indicator, setting, long_term_1_orders)
 
         # Long-term long strategy 2
-        self.__long_term_2(indicator)
+        self.__long_term_2(indicator, setting, long_term_2_orders)
 
         # Mid-term long strategy 1
-        self.__mid_term_1(indicator)
+        self.__mid_term_1(indicator, setting, mid_term_1_orders)
 
         # Short-term long strategy 1
-        self.__short_term_1(indicator)
+        self.__short_term_1(indicator, setting, short_term_1_orders)
 
     # Strategy trigger (running in a high frequency)
     def run_trigger(self):
+        # Load settings
+        with open('setting.json') as setting_file:
+            setting = json.load(setting_file)
+
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
 
@@ -183,64 +208,57 @@ class VTCompLong(object):
         i = IndicatorCheck(rec, self.__indicator_length_limit)
 
         # Long-term 1 trigger (close)
-        if self.__get_order_length(self.__LONG_TERM_1) > 0:
+        orders = self.__get_orders(self.__LONG_TERM_1)
+        if len(orders) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Trigger: Close long-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__LONG_TERM_1)):
-                    order = self.__sell(self.__long_weight)
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_1)
 
+        orders = self.__get_orders(self.__LONG_TERM_2)
         # Long-term 2 trigger (close)
-        if self.__get_order_length(self.__LONG_TERM_2) > 0:
+        if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close long-term long strategy 2.")
 
-                for o in range(self.__get_order_length(self.__LONG_TERM_2)):
-                    order = self.__sell(self.__long_weight)
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__LONG_TERM_2)
 
+        orders = self.__get_orders(self.__SHORT_TERM_1)
+
         # Short-term trigger (close)
-        if self.__get_order_length(self.__SHORT_TERM_1) > 0:
+        if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close short-term long strategy 1.")
 
-                for o in range(self.__get_order_length(self.__SHORT_TERM_1)):
-                    order = self.__sell()
+                for o in orders:
+                    order = self.__sell(o['amount'])
                 self.__clear_order_record(self.__SHORT_TERM_1)
 
     # Buy order
     # TODO make a suitable order
-    def __buy(self, weight: float = 1):
-        # ticker = self.__bot.get_ticker(self.__symbol)
-        # if ticker is None:
-        #     order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
-        # else:
-        #     order = self.__bot.buy_limit(self.__symbol, self.__amount * weight, ticker['last'] * self.__slippage_buy)
-        order = self.__bot.buy_market(self.__symbol, self.__amount * weight)
+    def __buy(self, amount: float = __amount):
+        order = self.__bot.buy_market(self.__symbol, amount)
         return order
 
     # Sell order
     # TODO make a suitable order
-    def __sell(self, weight: float = 1):
-        order = self.__bot.sell_market(self.__symbol, self.__amount * weight)
+    def __sell(self, amount: float = __amount):
+        order = self.__bot.sell_market(self.__symbol, amount)
         return order
 
     # Reached max number of open orders
     def __reached_max_open_order(self):
-        return self.__count_current_open_orders() >= self.__max_open_order
-
-    # Total number of current open orders
-    def __count_current_open_orders(self):
-        return self.__get_order_length(self.__LONG_TERM_1) + self.__get_order_length(
-            self.__LONG_TERM_2) + self.__get_order_length(
-            self.__MID_TERM_1) + self.__get_order_length(self.__SHORT_TERM_1)
+        return self.__current_open_order >= self.__max_open_order
 
     def __create_order_record(self, name: str, order):
         self.__bot.create_order_record(name, order)
 
-    def __get_order_length(self, name: str):
-        return self.__bot.get_order_record_length(name)
+    def __get_orders(self, name: str):
+        return self.__bot.get_orders(name)
 
     def __clear_order_record(self, name: str):
         self.__bot.clear_order_record(name)

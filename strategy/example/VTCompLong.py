@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 
@@ -14,11 +13,18 @@ class VTCompLong(object):
     # Time frame
     __time_frame = '15m'
 
+    # Dynamic settings
+    __setting = {
+        'amount': 0.01,
+        'long_weight': 1.5,
+        'max_open_order': 10
+    }
+
     # Amount per order (BTC)
-    __amount = 0.01
+    __amount = __setting['amount']
 
     # Long-term weight
-    __long_weight = 1.5
+    __long_weight = __setting['long_weight']
 
     # Record limit per fetch (Binance max: 1500)
     __record_limit = 1000
@@ -27,21 +33,15 @@ class VTCompLong(object):
     __indicator_length_limit = 10
 
     # Max number of open orders (included)
-    __max_open_order = 10
+    __max_open_order = __setting['max_open_order']
 
     # Current number of open orders
     __current_open_order = 0
 
     def __init__(self, bot):
         self.__bot = bot
-        # Create strategy setting file
-        with open('setting.json', 'w') as outfile:
-            setting = {
-                'amount': self.__amount,
-                'long_weight': self.__long_weight,
-                'max_open_order': self.__max_open_order
-            }
-            json.dump(setting, outfile)
+        # Create strategy setting
+        bot.create_setting(self.__setting)
 
     __LONG_TERM_1 = "long_term_1_order"
     __LONG_TERM_2 = "long_term_2_order"
@@ -164,8 +164,7 @@ class VTCompLong(object):
             return
 
         # Load settings
-        with open('setting.json') as setting_file:
-            setting = json.load(setting_file)
+        setting = self.__bot.get_setting()
 
         # Load current open orders
         long_term_1_orders = self.__get_orders(self.__LONG_TERM_1)
@@ -192,10 +191,6 @@ class VTCompLong(object):
 
     # Strategy trigger (running in a high frequency)
     def run_trigger(self):
-        # Load settings
-        with open('setting.json') as setting_file:
-            setting = json.load(setting_file)
-
         # Fetch records
         rec = self.__bot.get_ohlcv(self.__symbol, self.__time_frame, self.__record_limit)
 

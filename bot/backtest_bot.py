@@ -45,6 +45,9 @@ class BackTestBot(object):
         # Order record storage
         self.__order_record = {}
 
+        # Setting
+        self.__setting = {}
+
     def next(self, next_time: datetime):
         for o in self.__order_history:
             if o['type'] == "market" and o['status'] == "unfilled":
@@ -230,3 +233,9 @@ class BackTestBot(object):
     def clear_order_record(self, name: str):
         if name in self.__order_record.keys():
             self.__order_record[name] = []
+
+    def create_setting(self, setting):
+        self.__setting = setting
+
+    def get_setting(self):
+        return self.__setting

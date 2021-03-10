@@ -215,3 +215,14 @@ class RealBot(object):
     @staticmethod
     def clear_order_record(name: str):
         om.clear(name)
+
+    @staticmethod
+    def create_setting(setting):
+        with open('setting.json', 'w') as outfile:
+            json.dump(setting, outfile)
+
+    @staticmethod
+    def get_setting():
+        with open('setting.json') as setting_file:
+            setting = json.load(setting_file)
+        return setting

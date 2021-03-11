@@ -8,7 +8,6 @@
   "pair": "BTC/USDT",
   "taker_fee": 0.04,
   "maker_fee": 0.02,
-  "plot": true,
   "data_dir": "./data/binance/futures/clean/",
   "result_dir": "./result/",
   "data": {

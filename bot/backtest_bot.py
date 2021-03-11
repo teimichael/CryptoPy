@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -161,33 +162,42 @@ class BackTestBot(object):
                     logging.info(str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
                         o['amount']) + ') at (' + str(o['price']) + ')')
 
-    def output_performance(self, plot: bool = False):
-        logging.info('Performance')
+    def output_performance(self):
+        path = f'{self.__result_dir}{datetime.now().timestamp()}/'
+        os.mkdir(path)
+
+        logging.info(f'Output performance to {path}')
+
         # Calculate performance model
         perf = get_performance(self.__order_history)
 
-        if plot:
-            fig, (ax1, ax2) = plt.subplots(2)
-            fig.suptitle('PnL Graphs')
-            # Plot PnL history
-            ax1.plot(perf.pnl_history)
-            ax1.set_title("PnL")
-            ax1.set_xlabel("Time")
-            ax1.set_ylabel("PnL")
-            # Plot cumulative PnL history
-            ax2.plot(perf.cum_pnl_history)
-            ax2.set_title("Cummulative PnL")
-            ax2.set_xlabel("Time")
-            ax2.set_ylabel("Cum PnL")
+        # Plot PnL figures
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('PnL Figures')
+        # Plot PnL history
+        ax1.plot(pd.to_datetime(perf.timestamps,unit='ms') , perf.pnl_history)
+        ax1.set_title("PnL")
+        ax1.set_xlabel("Time")
+        ax1.tick_params(axis='x', rotation=45)
+        ax1.set_ylabel("PnL")
+        # Plot cumulative PnL history
+        ax2.plot(pd.to_datetime(perf.timestamps,unit='ms'), perf.cum_pnl_history)
+        ax2.set_title("Cummulative PnL")
+        ax2.set_xlabel("Time")
+        ax2.tick_params(axis='x', rotation=45)
+        ax2.set_ylabel("Cum PnL")
 
-            plt.tight_layout()
-            plt.savefig(f'{self.__result_dir}perf_{datetime.now().timestamp()}.png')
+        plt.tight_layout()
+        plt.savefig(f'{path}pnl_history.svg')
 
-            delattr(perf, 'pnl_history')
-            delattr(perf, 'cum_pnl_history')
+        delattr(perf, 'pnl_history')
+        delattr(perf, 'cum_pnl_history')
+        delattr(perf, 'timestamps')
 
         # Print performance information
         perf = json.dumps(perf.__dict__)
+        with open(f'{path}perf.json', 'w') as outfile:
+            json.dump(perf, outfile)
         logging.info(perf)
 
     def output_buy_hold(self, start_time: datetime, end_time: datetime):

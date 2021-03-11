@@ -55,6 +55,7 @@ def get_performance(orders) -> PerfInfo:
                 perf.loss_long += 1
             # Append to history list
             perf.pnl_history.append(pnl)
+            perf.timestamps.append(o['timestamp'])
 
         elif o['side'] == 'sell' and position_type == 'short':
             # Calculate total value
@@ -88,13 +89,14 @@ def get_performance(orders) -> PerfInfo:
                 perf.loss_short += 1
             # Append to history list
             perf.pnl_history.append(pnl)
+            perf.timestamps.append(o['timestamp'])
         long_amount = round(long_amount, precision)
         short_amount = round(short_amount, precision)
 
     # Cumulative PnL History
-    if len(perf.pnl_history) > 1:
-        c = perf.pnl_history[0]
-        for i in range(1, len(perf.pnl_history)):
+    if len(perf.pnl_history) > 0:
+        c = 0
+        for i in range(0, len(perf.pnl_history)):
             c += perf.pnl_history[i]
             perf.cum_pnl_history.append(c)
 

@@ -57,6 +57,8 @@ class PerfInfo:
         # Short win order number
         self.loss_short = 0
         # PnL History
-        self.pnl_history = [0]
+        self.pnl_history = []
         # Cumulative PnL History
-        self.cum_pnl_history = [0]
+        self.cum_pnl_history = []
+        # Timestamps
+        self.timestamps = []

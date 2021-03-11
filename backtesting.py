@@ -1,4 +1,5 @@
 import importlib
+import os
 import json
 import logging
 from datetime import timedelta
@@ -13,6 +14,10 @@ if __name__ == "__main__":
     # Load configuration file
     with open('./backtest_config.json') as f:
         config = json.load(f)
+
+    # Create result directory
+    if not os.path.isdir(config['result_dir']):
+        os.mkdir(config['result_dir'])
 
     # Load trading bot
     bot = BackTestBot(config)

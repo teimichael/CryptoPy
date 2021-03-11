@@ -10,6 +10,7 @@
   "maker_fee": 0.02,
   "plot": true,
   "data_dir": "./data/binance/futures/clean/",
+  "result_dir": "./result/",
   "data": {
     "clean_data_dir": "./data/binance/futures/clean/",
     "raw_data_dir": "./data/binance/futures/",
@@ -17,7 +18,7 @@
     "quote": "BTC",
     "futures": true,
     "time_frame": "15m",
-    "start_date": "01/01/2021",
-    "end_date": "02/15/2021"
+    "start_date": "01/01/2017",
+    "end_date": "03/06/2021"
   }
 }

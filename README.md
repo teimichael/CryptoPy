@@ -102,6 +102,7 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 - **maker_fee**: maker fee
 - **plot**: whether plotting results
 - **data_dir**: directory of historical data
+- **result_dir**： directory of backtesting performance
 - **data**: configuration for data collector
 
 Notice that *start_date* and *end_date* are set with local timezone.

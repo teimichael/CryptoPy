@@ -20,6 +20,9 @@ class BackTestBot(object):
         # Data directory
         self.__data_dir = config["data_dir"]
 
+        # Result directory
+        self.__result_dir = config["result_dir"]
+
         # Interval
         self.__interval = config["interval"]
 
@@ -178,7 +181,7 @@ class BackTestBot(object):
             ax2.set_ylabel("Cum PnL")
 
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f'{self.__result_dir}perf_{datetime.now().timestamp()}.png')
 
             delattr(perf, 'pnl_history')
             delattr(perf, 'cum_pnl_history')

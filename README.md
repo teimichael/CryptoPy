@@ -24,9 +24,9 @@ RESULTS.
 
 ## Set Up
 
-> Set up the running environment locally: cd setup && chmod u+x setup.sh && sudo ./setup.sh local
+> Set up the running environment locally: chmod u+x setup/setup.sh && sudo ./setup/setup.sh local
 
-> Set up the running environment in a Docker image: cd setup && chmod u+x setup.sh && sudo ./setup.sh image
+> Set up the running environment in a Docker image: chmod u+x setup/setup.sh && sudo ./setup/setup.sh image
 
 One-click environment setup for Ubuntu (tested on Ubuntu 20.04.2 LTS)
 

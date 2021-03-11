@@ -5,6 +5,7 @@ help() {
 }
 
 if [ $1x = "localx" ]; then
+    cd setup
     apt-get update
     apt-get install -y --no-install-recommends build-essential libssl-dev libffi-dev python3-pip python3-dev
     pip3 install pyopenssl ndg-httpsclient pyasn1

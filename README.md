@@ -24,7 +24,9 @@ RESULTS.
 
 ## Set Up
 
-> setup/setup.sh
+> Set up the running environment locally: cd setup && chmod u+x setup.sh && sudo ./setup.sh local
+
+> Set up the running environment in a Docker image: cd setup && chmod u+x setup.sh && sudo ./setup.sh image
 
 One-click environment setup for Ubuntu (tested on Ubuntu 20.04.2 LTS)
 
@@ -146,6 +148,13 @@ fully implemented. Please know exactly what you are doing.
 ```
 python(3) <data_collector.py | backtesting.py | emulate.py | real_trading.py>
 ```
+
+### Running in Docker
+
+```
+docker run -it --env http_proxy=proxy_addr --env https_proxy=proxy_addr -v /path/to/config.json:/project/config.json cryptopy <data_collector.py | backtesting.py | emulate.py | real_trading.py>
+```
+Use the `env` flag to set network proxy if needed. Use the `v` flag to mount the config files into containers.
 
 ## Reference
 

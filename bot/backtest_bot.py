@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -151,20 +150,28 @@ class BackTestBot(object):
                 canceled_ids.append(o['id'])
         return canceled_ids
 
-    def output_order_history(self, status=None):
+    def output_order_history(self, path: str, status: str = None):
         logging.info('Order history')
+        orders = []
         if status is None:
+            # Output all orders
             for o in self.__order_history:
                 logging.info(o)
-        elif status == "filled":
+                orders.append([o['timestamp'], o['side'], o['amount']])
+        else:
+            # Output orders with specific status
             for o in self.__order_history:
-                if o['status'] == "filled":
-                    logging.info(str(datetime.fromtimestamp(o['timestamp'] / 1000)) + ' ' + o['side'] + ' (' + str(
-                        o['amount']) + ') at (' + str(o['price']) + ')')
+                if o['status'] == status:
+                    logging.info(
+                        f"{datetime.fromtimestamp(o['timestamp'] / 1000)} {o['side']} ({o['amount']}) at {o['price']}")
+                    orders.append([o['timestamp'], o['side'], o['amount']])
 
-    def output_performance(self):
-        path = f'{self.__result_dir}{datetime.now().timestamp()}/'
-        os.mkdir(path)
+        with open(f'{path}order_history.json', 'w') as outfile:
+            json.dump(orders, outfile)
+
+    def output_performance(self, path: str):
+        # path = f'{self.__result_dir}{datetime.now().timestamp()}/'
+        # os.mkdir(path)
 
         logging.info(f'Output performance to {path}')
 
@@ -175,13 +182,13 @@ class BackTestBot(object):
         fig, (ax1, ax2) = plt.subplots(2)
         fig.suptitle('PnL Figures')
         # Plot PnL history
-        ax1.plot(pd.to_datetime(perf.timestamps,unit='ms') , perf.pnl_history)
+        ax1.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.pnl_history)
         ax1.set_title("PnL")
         ax1.set_xlabel("Time")
         ax1.tick_params(axis='x', rotation=45)
         ax1.set_ylabel("PnL")
         # Plot cumulative PnL history
-        ax2.plot(pd.to_datetime(perf.timestamps,unit='ms'), perf.cum_pnl_history)
+        ax2.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.cum_pnl_history)
         ax2.set_title("Cummulative PnL")
         ax2.set_xlabel("Time")
         ax2.tick_params(axis='x', rotation=45)

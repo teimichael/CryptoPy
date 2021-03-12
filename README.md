@@ -20,7 +20,7 @@ RESULTS.
 - [x] **Common Indicator Support**: EMA, MACD, Bollinger Bands, etc.
 - [x] **Full OHLCV-based Strategy Support**: portable strategy and seamlessly compatible among backtesting, emulation,
   and real trading.
-- [x] **Demo Vegas Tunnel Strategy**
+- [x] **Bunch of Demo Strategies (Vegas Tunnel, Bollinger Bands, Momentum, ...)**
 
 ## Set Up
 
@@ -154,9 +154,16 @@ python(3) <data_collector.py | backtesting.py | emulate.py | real_trading.py>
 ### Running in Docker
 
 ```
-docker run -it --env http_proxy=proxy_addr --env https_proxy=proxy_addr -v /path/to/config.json:/project/config.json cryptopy <data_collector.py | backtesting.py | emulate.py | real_trading.py>
+docker run <-it | -d> [--env http_proxy=*] [--env https_proxy=*] [-v *:*] cryptopy <data_collector.py | backtesting.py | emulate.py | real_trading.py>
 ```
+
 Use the `env` flag to set network proxy if needed. Use the `v` flag to mount the config files into containers.
+
+Example
+
+```
+docker run -d -v /opt/logs:/project/logs -v /opt/runtime:/project/runtime cryptopy emulate.py
+```
 
 ## Reference
 

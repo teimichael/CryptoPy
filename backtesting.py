@@ -1,8 +1,8 @@
 import importlib
-import os
 import json
 import logging
-from datetime import timedelta
+import os
+from datetime import timedelta, datetime
 
 from bot.backtest_bot import BackTestBot
 from core.util import str_to_date, parse_timeframe
@@ -40,11 +40,15 @@ if __name__ == "__main__":
         strategy.run(current)
         i += 1
 
+    # Create output directory
+    path = f'{config["result_dir"]}{datetime.now().timestamp()}/'
+    os.mkdir(path)
+
     # Output order history
-    bot.output_order_history("filled")
+    bot.output_order_history(path, "filled")
 
     # Output performance
-    bot.output_performance()
+    bot.output_performance(path)
 
     # Buy & hold
     bot.output_buy_hold(start, end)

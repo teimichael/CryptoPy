@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -42,20 +43,24 @@ def schedule_strategy(strategy):
     scheduler.start()
 
 
-def set_logging():
-    log_name = 'log_' + str(datetime.now().date()) + '.log'
+def set_logging(config):
+    # Set logging
+    dir = config['logs_dir']
+    if not os.path.isdir(dir):
+        os.mkdir(dir)
+    log_name = f'{dir}/log_{datetime.now().date()}.log'
     logging.basicConfig(filename=log_name,
                         filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
 
 
 # Real-trading entry
 if __name__ == "__main__":
-    # Set logging
-    set_logging()
-
     # Load configuration file
     with open('./config.json') as f:
         config = json.load(f)
+
+    # Set logging
+    set_logging(config)
 
     # Load trading bot
     # bot = RealBot(config)  # Uncomment this to run real bot for trading when everything is ready.

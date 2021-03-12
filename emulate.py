@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -47,16 +48,24 @@ def schedule_strategy(strategy):
     scheduler.start()
 
 
-# Emulate entry point
-if __name__ == "__main__":
+def set_logging(config):
     # Set logging
-    log_name = 'log_' + str(datetime.now().date()) + '.log'
+    dir = config['logs_dir']
+    if not os.path.isdir(dir):
+        os.mkdir(dir)
+    log_name = f'{dir}/log_{datetime.now().date()}.log'
     logging.basicConfig(filename=log_name,
                         filemode='a', format='%(asctime)s - %(message)s', level=logging.INFO)
 
+
+# Emulate entry point
+if __name__ == "__main__":
     # Load configuration file
     with open('./config.json') as f:
         config = json.load(f)
+
+    # Set logging
+    set_logging(config)
 
     # Load trading bot
     bot = EmulateBot(config)

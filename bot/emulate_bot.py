@@ -1,11 +1,12 @@
 import json
 import logging
+import os
 
 import ccxt
 from tenacity import *
 
-from core import order_manager as om
 from core.model import Order
+from core.order_manager import OrderManager
 from core.performance import get_performance
 
 
@@ -40,21 +41,37 @@ class EmulateBot(object):
         # Load markets
         markets = self.exchange.load_markets()
 
+        # Create runtime directory
+        if not os.path.isdir(config['runtime_dir']):
+            os.mkdir(config['runtime_dir'])
+
+        # Runtime information path
+        self.__info_path = f'{config["runtime_dir"]}info.json'
+
+        # Runtime open order path
+        self.__orders_path = f'{config["runtime_dir"]}orders.json'
+
+        # Runtime setting path
+        self.__setting_path = f'{config["runtime_dir"]}setting.json'
+
+        # Create info file
+        with open(self.__info_path, 'w') as outfile:
+            info = {}
+            json.dump(info, outfile)
+
+        # Create order record file
+        with open(self.__orders_path, 'w') as outfile:
+            order = {}
+            json.dump(order, outfile)
+
+        # Order manager
+        self.om = OrderManager(self.__orders_path)
+
         # Track complete order history
         self.__order_history = []
 
         # Order ID Issuer
         self.__order_id = 0
-
-        # Create info file
-        with open('info.json', 'w') as outfile:
-            info = {}
-            json.dump(info, outfile)
-
-        # Create order record file
-        with open('orders.json', 'w') as outfile:
-            order = {}
-            json.dump(order, outfile)
 
         logging.info("Emulate bot created.")
 
@@ -93,11 +110,11 @@ class EmulateBot(object):
         return o
 
     # TODO still needs test
-    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
-           after=after_log(logging.getLogger(__name__), logging.ERROR))
-    def get_orders(self, symbol: str, limit: int = None) -> dict:
-        orders = self.exchange.fetch_orders(symbol=symbol)
-        return orders
+    # @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+    #        after=after_log(logging.getLogger(__name__), logging.ERROR))
+    # def get_orders(self, symbol: str, limit: int = None) -> dict:
+    #     orders = self.exchange.fetch_orders(symbol=symbol)
+    #     return orders
 
     def buy_limit(self, symbol: str, amount: float, price: float) -> Order:
         o = Order(self.__order_id, symbol, 'limit', 'buy', amount, price)
@@ -148,7 +165,7 @@ class EmulateBot(object):
     def output_balance(self):
         balance = self.get_balance()
         if balance is not None:
-            with open('info.json') as info_file:
+            with open(self.__info_path) as info_file:
                 info = json.load(info_file)
                 info['balance'] = {
                     'totalWalletBalance': balance['totalWalletBalance'],
@@ -162,7 +179,7 @@ class EmulateBot(object):
                     'totalCrossUnPnl': balance['totalCrossUnPnl'],
                     'availableBalance': balance['availableBalance']
                 }
-                with open('info.json', 'w') as outfile:
+                with open(self.__info_path, 'w') as outfile:
                     json.dump(info, outfile)
                 logging.info(json.dumps(info['balance']))
         else:
@@ -185,29 +202,23 @@ class EmulateBot(object):
             else:
                 return self.exchange.fetchOpenOrders(symbol=symbol, limit=limit)
 
-    @staticmethod
-    def create_order_record(name: str, order):
-        om.create(name, order)
+    def create_order_record(self, name: str, order):
+        self.om.create(name, order)
 
-    @staticmethod
-    def get_order_record_length(name: str):
-        return om.get_length(name)
+    def get_order_record_length(self, name: str):
+        return self.om.get_length(name)
 
-    @staticmethod
-    def get_orders(name: str):
-        return om.get_all(name)
+    def get_orders(self, name: str):
+        return self.om.get_all(name)
 
-    @staticmethod
-    def clear_order_record(name: str):
-        om.clear(name)
+    def clear_order_record(self, name: str):
+        self.om.clear(name)
 
-    @staticmethod
-    def create_setting(setting):
-        with open('setting.json', 'w') as outfile:
+    def create_setting(self, setting):
+        with open(self.__setting_path, 'w') as outfile:
             json.dump(setting, outfile)
 
-    @staticmethod
-    def get_setting():
-        with open('setting.json') as setting_file:
+    def get_setting(self):
+        with open(self.__setting_path) as setting_file:
             setting = json.load(setting_file)
         return setting

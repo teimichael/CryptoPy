@@ -5,5 +5,7 @@
     "secret": "YOUR_SECRET",
     "password": "YOUR_PASSWORD"
   },
-  "exchange_type": "future"
+  "exchange_type": "future",
+  "logs_dir": "logs/",
+  "runtime_dir": "runtime/"
 }

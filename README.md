@@ -124,6 +124,8 @@ or cancel any orders.
   to [How to create API key in Binance](https://www.binance.com/en/support/faq/360002502072-How-to-create-API)
   or [How to create API key in OKEx](https://www.okex.com/docs/en/).
 - **exchange_type**: spot, future (Binance Perpetual), swap (OKEx Perpetual)
+- **logs_dir**: logging directory
+- **runtime_dir**: runtime file directory
 
 ### Dependency
 

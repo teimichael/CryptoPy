@@ -5,6 +5,6 @@ RUN mkdir /project
 WORKDIR /project
 COPY . .
 
-RUN cd setup && chmod u+x setup.sh && ./setup.sh local
+RUN chmod u+x setup/setup.sh && ./setup/setup.sh local
 
 ENTRYPOINT [ "python3" ]

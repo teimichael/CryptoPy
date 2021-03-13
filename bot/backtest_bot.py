@@ -202,10 +202,10 @@ class BackTestBot(object):
         delattr(perf, 'timestamps')
 
         # Print performance information
-        perf = json.dumps(perf.__dict__)
+        # perf = json.dumps(perf.__dict__)
         with open(f'{path}perf.json', 'w') as outfile:
-            json.dump(perf, outfile)
-        logging.info(perf)
+            json.dump(perf.__dict__, outfile)
+        logging.info(perf.__dict__)
 
     def output_buy_hold(self, start_time: datetime, end_time: datetime):
         logging.info('Buy & Hold')

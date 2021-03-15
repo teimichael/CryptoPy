@@ -54,15 +54,17 @@ class EmulateBot(object):
         # Runtime setting path
         self.__setting_path = f'{config["runtime_dir"]}setting.json'
 
-        # Create info file
-        with open(self.__info_path, 'w') as outfile:
-            info = {}
-            json.dump(info, outfile)
+        if not os.path.exists(self.__info_path):
+            # Create info file
+            with open(self.__info_path, 'w') as outfile:
+                info = {}
+                json.dump(info, outfile)
 
-        # Create order record file
-        with open(self.__orders_path, 'w') as outfile:
-            order = {}
-            json.dump(order, outfile)
+        if not os.path.exists(self.__orders_path):
+            # Create order record file
+            with open(self.__orders_path, 'w') as outfile:
+                order = {}
+                json.dump(order, outfile)
 
         # Order manager
         self.om = OrderManager(self.__orders_path)
@@ -215,8 +217,10 @@ class EmulateBot(object):
         self.om.clear(name)
 
     def create_setting(self, setting):
-        with open(self.__setting_path, 'w') as outfile:
-            json.dump(setting, outfile)
+        if not os.path.exists(self.__setting_path):
+            # Create setting file
+            with open(self.__setting_path, 'w') as outfile:
+                json.dump(setting, outfile)
 
     def get_setting(self):
         with open(self.__setting_path) as setting_file:

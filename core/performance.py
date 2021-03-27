@@ -108,10 +108,11 @@ def get_performance(orders) -> PerfInfo:
     perf.pnl = perf.long_pnl + perf.short_pnl
     perf.win = perf.win_long + perf.win_short
     perf.loss = perf.loss_long + perf.loss_short
+    perf.percent_profitable = perf.win / (perf.win + perf.loss)
 
-    perf.pnl_max = max(perf.pnl_history)
-    perf.pnl_min = min(perf.pnl_history)
-    perf.cum_pnl_max = max(perf.cum_pnl_history)
-    perf.cum_pnl_min = min(perf.cum_pnl_history)
+    perf.pnl_max = max(perf.pnl_history) if len(perf.pnl_history) > 0 else 0
+    perf.pnl_min = min(perf.pnl_history) if len(perf.pnl_history) > 0 else 0
+    perf.cum_pnl_max = max(perf.cum_pnl_history) if len(perf.cum_pnl_history) > 0 else 0
+    perf.cum_pnl_min = min(perf.cum_pnl_history) if len(perf.cum_pnl_history) > 0 else 0
 
     return perf

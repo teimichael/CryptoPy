@@ -56,6 +56,8 @@ class PerfInfo:
         self.loss_long = 0
         # Short win order number
         self.loss_short = 0
+        # Percent Profitable
+        self.percent_profitable = 0
         # PnL History
         self.pnl_history = []
         # Cumulative PnL History

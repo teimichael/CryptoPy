@@ -111,7 +111,8 @@ Please check the [official document](https://mrjbq7.github.io/ta-lib/install.htm
 - **taker_fee**: taker fee
 - **maker_fee**: maker fee
 - **data_dir**: directory of historical data
-- **result_dir**： directory of backtesting performance
+- **result_dir**: directory of backtesting performance
+- **plot**: plot indicators on visualized backtesting results
 - **data**: configuration for data collector
 
 Notice that *start_date* and *end_date* are set with local timezone.

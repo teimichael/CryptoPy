@@ -57,7 +57,7 @@ if __name__ == "__main__":
     bot.output_performance(result_dir, start, end)
 
     # Output visualization of the result
-    bot.output_view(result_dir, global_dir)
+    bot.output_view(result_dir, global_dir, config['plot'])
 
     # Output backtesting information
     bot.output_config(result_dir, config)

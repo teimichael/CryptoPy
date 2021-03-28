@@ -9,7 +9,7 @@
     <script type="text/javascript" src="{!order_history!}"></script>
     <script type="text/javascript" src="{!pnl!}"></script>
     <script type="text/javascript" src="{!cum_pnl!}"></script>
-    <script type="text/javascript" src="./indicator.js"></script>
+    <script type="text/javascript" src="{!plot!}"></script>
 </head>
 <body style="margin: 0;height: 100%">
 <div id="chart" style="height: 100%"></div>
@@ -75,10 +75,12 @@
             name: 'PnL',
             baseValue: 0,
             plots: [
-                {key: 'cum_pnl', title: 'CUM_PNL'  ,type: 'line'},
+                {
+                    key: 'cum_pnl', title: 'Cum PnL', type: 'line'
+                },
                 {
                     key: 'pnl',
-                    title: 'PNL',
+                    title: 'PnL',
                     type: 'bar',
                     color: (data, options) => {
                         const kLineData = data.currentData.kLineData || {}
@@ -125,12 +127,9 @@
             },
         });
 
-
-
         // draw chart
         chart.setOffsetRightSpace(200);
-        chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);;
-        /*chart.createTechnicalIndicator('MA', true, {id: 'candle_pane'});*/
+        chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);
         chart.createTechnicalIndicator('EMA', true, {id: 'candle_pane'});
         chart.createTechnicalIndicator('SMA', true, {id: 'candle_pane'});
         chart.createTechnicalIndicator('PnL', false, {id: "technical_indicator_pane_1"});
@@ -141,13 +140,13 @@
             const {ctx, kLineData, coordinate, isCandle} = data;
 
             if (isCandle && MARKS_INDEX.includes(kLineData.timestamp)) {
-                for(let i = 0, len = MARKS[kLineData.timestamp].length; i < len; i++){
+                for (let i = 0, len = MARKS[kLineData.timestamp].length; i < len; i++) {
                     ctx.font = '12px';
                     const text = `${(MARKS[kLineData.timestamp][i].side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(MARKS[kLineData.timestamp][i].amount.toFixed(5))}`;
                     const textWidth = ctx.measureText(text).width;
 
                     const startX = coordinate.x;
-                    const startY = coordinate.close - 50 * ( i + 1 );
+                    const startY = coordinate.close - 50 * (i + 1);
 
                     ctx.beginPath();
                     ctx.moveTo(startX, coordinate.high);

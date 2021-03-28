@@ -281,7 +281,7 @@ class BackTestBot(object):
         with open(f'{result_dir}performance.json', 'w') as outfile:
             json.dump(perf.__dict__, outfile, indent=4)
 
-    def output_view(self, result_dir: str, global_dir: str):
+    def output_view(self, result_dir: str, global_dir: str, plot):
         data_name = self.__pair.replace("/", "") + "_" + self.__interval
 
         k_line = []
@@ -320,13 +320,18 @@ class BackTestBot(object):
                 cum_pnl_history = "const CUM_PNL = " + json.dumps(cum_pnl_history)
                 cum_pnl_script.write(cum_pnl_history)
 
+        with open(f'{script_path}plot.js', 'w') as plot_script:
+            indicator = "const INDICATOR = " + json.dumps(plot)
+            plot_script.write(indicator)
+
         # Create HTML
         with open('view/index.html') as template:
             t = template.read()
             t = t.replace("{!k_line!}", f'../global/{data_name}.js') \
                 .replace("{!order_history!}", f'{self.__script_subdir}order_history.js') \
                 .replace("{!pnl!}", f'{self.__script_subdir}pnl.js') \
-                .replace("{!cum_pnl!}", f'{self.__script_subdir}cum_pnl.js')
+                .replace("{!cum_pnl!}", f'{self.__script_subdir}cum_pnl.js') \
+                .replace("{!plot!}", f'{self.__script_subdir}plot.js')
             with open(f'{result_dir}index.html', 'w') as index_html:
                 index_html.write(t)
 

@@ -10,6 +10,10 @@
   "maker_fee": 0.02,
   "data_dir": "./data/binance/futures/clean/",
   "result_dir": "./result/",
+  "plot": {
+    "sma": [7, 25, 99],
+    "ema": [144, 169]
+  },
   "data": {
     "clean_data_dir": "./data/binance/futures/clean/",
     "raw_data_dir": "./data/binance/futures/",

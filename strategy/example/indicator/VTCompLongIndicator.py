@@ -1,7 +1,6 @@
 import numpy as np
 import talib as ta
 
-
 from talib._ta_lib import MA_Type
 
 
@@ -47,11 +46,11 @@ class Indicator:
 # Indicator for check
 class IndicatorCheck:
     def __init__(self, records, length_limit):
-        # Ignore current time point record (only consider complete k-lines)
-        records = records[:-1]
+        last = records[-1]
 
         # Close Price List
-        self.close = np.asarray([r[4] for r in records])
+        # Ignore current time point record for calculating indicators(only consider complete k-lines)
+        self.close = np.asarray([r[4] for r in records[:-1]])
 
         self.ema144 = fill_none(ta.EMA(self.close, 144)[-length_limit:])
         self.ema576 = fill_none(ta.EMA(self.close, 576)[-length_limit:])
@@ -60,6 +59,9 @@ class IndicatorCheck:
         bb = ta.BBANDS(self.close, timeperiod=20, nbdevup=2, nbdevdn=2)
         self.bbUpper = fill_none(bb[0][-length_limit:])
         self.bbLower = fill_none(bb[2][-length_limit:])
+
+        # Append the latest record
+        self.close = np.append(self.close, last[4])
 
         self.close = self.close[-length_limit:]
 

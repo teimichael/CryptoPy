@@ -112,8 +112,8 @@
 
         // override SMA
         chart.overrideTechnicalIndicator({
-            name: 'SMA',
-            calcParams: INDICATOR.sma,
+            name: 'MA',
+            calcParams: INDICATOR.ma,
         });
 
         // override EMA
@@ -122,7 +122,7 @@
             calcParams: INDICATOR.ema,
             styles: {
                 line: {
-                    colors: ['#9D65C9', '#2196F3', '#E11D74', '#01C5C4'],
+                    colors: ['#cb4335', '#28b463', '#2980b9', '#ba4a00', '#d0d3d4', '#d4ac0d'],
                 },
             },
         });
@@ -130,8 +130,8 @@
         // draw chart
         chart.setOffsetRightSpace(200);
         chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);
+        chart.createTechnicalIndicator('MA', true, {id: 'candle_pane'});
         chart.createTechnicalIndicator('EMA', true, {id: 'candle_pane'});
-        chart.createTechnicalIndicator('SMA', true, {id: 'candle_pane'});
         chart.createTechnicalIndicator('PnL', false, {id: "technical_indicator_pane_1"});
         chart.applyNewData(chartDataList);
 

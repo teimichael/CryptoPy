@@ -11,7 +11,7 @@
   "data_dir": "./data/binance/futures/clean/",
   "result_dir": "./result/",
   "plot": {
-    "sma": [7, 25, 99],
+    "ma": [7, 25, 99],
     "ema": [144, 169]
   },
   "data": {

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" style="background: #191919;height: 100%">
+<head>
+    <meta charset="utf-8"/>
+    <title>Backtesting Result Visualization</title>
+    <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/klinecharts@7.0.0/dist/klinecharts.min.js"></script>
+    <script type="text/javascript" src="{!k_line!}"></script>
+    <script type="text/javascript" src="{!order_history!}"></script>
+    <script type="text/javascript" src="{!pnl!}"></script>
+    <script type="text/javascript" src="{!cum_pnl!}"></script>
+</head>
+<body style="margin: 0;height: 100%">
+<div id="chart" style="height: 100%"></div>
+<script>
+    window.onload = function () {
+        // init chart
+        let chart = klinecharts.init('chart');
+        chart.setStyleOptions({
+            candle: {
+                tooltip: {
+                    labels: ['Time', 'Open', 'Close', 'High', 'Low', 'Volume']
+                }
+            }
+        })
+
+        // define mark
+        let MARKS = [];
+        let MARKS_INDEX = [];
+
+        for (let i = 0, len = ORDER_HISTORY.length; i < len; i++) {
+            MARKS_INDEX.push(ORDER_HISTORY[i][0]);
+            if (MARKS[ORDER_HISTORY[i][0]]) {
+                if (MARKS[ORDER_HISTORY[i][0]].side === ORDER_HISTORY[i][1]) {
+                    MARKS[ORDER_HISTORY[i][0]].amount += ORDER_HISTORY[i][2];
+                } else {
+                    if (MARKS[ORDER_HISTORY[i][0]].amount >= ORDER_HISTORY[i][2]) {
+                        MARKS[ORDER_HISTORY[i][0]].amount -= ORDER_HISTORY[i][2]
+                    } else {
+                        MARKS[ORDER_HISTORY[i][0]].side = ORDER_HISTORY[i][1];
+                        MARKS[ORDER_HISTORY[i][0]].amount = ORDER_HISTORY[i][2] - MARKS[ORDER_HISTORY[i][0]].amount;
+                    }
+                }
+            } else {
+                MARKS[ORDER_HISTORY[i][0]] = {
+                    side: ORDER_HISTORY[i][1],
+                    amount: ORDER_HISTORY[i][2],
+                }
+            }
+        }
+
+        // load data
+        let chartDataList = K_LINE_DATA.map(function (data) {
+            return {
+                timestamp: Number(data[0]),
+                open: +data[1],
+                high: +data[2],
+                low: +data[3],
+                close: +data[4],
+                volume: Math.ceil(+data[4]),
+            }
+        });
+
+        // define pnl and cum_pnl
+        // pnl
+        let PNL_DATA = [];
+        for (let i = 0, len = PNL.length; i < len; i++) {
+            PNL_DATA[PNL[i][0]] = PNL[i][1];
+        }
+
+        // cum pul
+        let LAST_CUM_DATA = 0;
+        let CUM_PNL_DATA = [];
+        for (let i = 0, len = CUM_PNL.length; i < len; i++) {
+            CUM_PNL_DATA[CUM_PNL[i][0]] = CUM_PNL[i][1];
+        }
+
+        const pnlTechnicalIndicator = {
+            name: 'PnL',
+            baseValue: 0,
+            plots: [
+                {key: 'cum_pnl', type: 'line'},
+                {
+                    key: 'pnl',
+                    type: 'bar',
+                    color: (data, options) => {
+                        const kLineData = data.currentData.kLineData || {}
+                        if (PNL_DATA[kLineData.timestamp] > 0) {
+                            return options.bar.upColor
+                        } else if (PNL_DATA[kLineData.timestamp] < 0) {
+                            return options.bar.downColor
+                        }
+                        return options.bar.noChangeColor
+                    }
+                }
+            ],
+            calcTechnicalIndicator: (dataList) => {
+                return dataList.map((kLineData, i) => {
+                    const pnl = PNL_DATA[kLineData.timestamp] || 0;
+                    let indicator = {pnl};
+
+                    let cum_pnl = LAST_CUM_DATA;
+                    if (CUM_PNL_DATA[kLineData.timestamp]) {
+                        cum_pnl = CUM_PNL_DATA[kLineData.timestamp];
+                        LAST_CUM_DATA = cum_pnl;
+                    }
+                    indicator.cum_pnl = cum_pnl;
+                    return indicator
+                })
+            }
+        };
+
+
+        // draw chart
+        chart.setOffsetRightSpace(200);
+        chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);
+        chart.createTechnicalIndicator('PnL', false, {id: "technical_indicator_pane_1"});
+        chart.applyNewData(chartDataList);
+
+
+        chart.subscribeAction('drawCandle', (data) => {
+            const {ctx, kLineData, coordinate, isCandle} = data;
+
+            if (isCandle && MARKS_INDEX.includes(kLineData.timestamp)) {
+                ctx.font = '12px';
+                const text = `${(MARKS[kLineData.timestamp].side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(MARKS[kLineData.timestamp].amount.toFixed(5))}`;
+                const textWidth = ctx.measureText(text).width;
+
+                const startX = coordinate.x;
+                const startY = coordinate.close - 50;
+
+                ctx.beginPath();
+                ctx.moveTo(startX, coordinate.high);
+                ctx.lineTo(startX, startY);
+                ctx.strokeStyle = 'gray';
+                ctx.stroke();
+
+
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(startX + 5, startY - 5);
+                ctx.lineTo(startX + 5 + (textWidth / 2), startY - 5);
+                ctx.lineTo(startX + 5 + (textWidth / 2), startY - 20);
+                ctx.lineTo(startX - 5 - (textWidth / 2), startY - 20);
+                ctx.lineTo(startX - 5 - (textWidth / 2), startY - 5);
+                ctx.lineTo(startX - 5, startY - 5);
+                ctx.closePath();
+                ctx.fillStyle = (MARKS[kLineData.timestamp].side === 'buy') ? '#0066ff' : '#FF7F24';
+                ctx.fill();
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#fff';
+                ctx.fillText(text, startX - (textWidth / 2), startY - 12);
+
+            }
+        })
+    }
+</script>
+</body>
+</html>

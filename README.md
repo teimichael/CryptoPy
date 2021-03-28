@@ -14,7 +14,7 @@ RESULTS.
 - [x] **Binance / OKEx API Integration**
 - [x] **Spot / Perpetual**
 - [x] **Data Collection** (Binance only)
-- [ ] **Backtesting**
+- [ ] **Backtesting with GUI**
 - [x] **Real-Time Emulation**
 - [ ] **Real trading**
 - [x] **Common Indicator Support**: EMA, MACD, Bollinger Bands, etc.
@@ -24,11 +24,19 @@ RESULTS.
 
 ## Set Up
 
-> Set up the running environment locally: chmod u+x setup/setup.sh && sudo ./setup/setup.sh local
-
-> Set up the running environment in a Docker image: chmod u+x setup/setup.sh && sudo ./setup/setup.sh image
-
 One-click environment setup for Ubuntu (tested on Ubuntu 20.04.2 LTS)
+
+### Set up the running environment locally
+
+```
+chmod u+x setup/setup.sh && sudo ./setup/setup.sh local
+```
+
+### Set up the running environment in a Docker image
+
+```
+chmod u+x setup/setup.sh && sudo ./setup/setup.sh image
+```
 
 ## Data Collector
 
@@ -171,3 +179,4 @@ docker run -d -v /opt/logs:/project/logs -v /opt/runtime:/project/runtime crypto
 - https://mrjbq7.github.io/ta-lib/
 - https://github.com/uneasyguy/binance_data
 - https://binance-docs.github.io/apidocs/futures/en/#change-log
+- https://github.com/liihuu/KLineChart

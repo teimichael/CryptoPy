@@ -1,5 +1,6 @@
+import csv
 import json
-import logging
+import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -20,8 +21,11 @@ class BackTestBot(object):
         # Data directory
         self.__data_dir = config["data_dir"]
 
-        # Result directory
-        self.__result_dir = config["result_dir"]
+        # Raw data subdirectory
+        self.__raw_subdir = "raw/"
+
+        # Script subdirectory
+        self.__script_subdir = "script/"
 
         # Interval
         self.__interval = config["interval"]
@@ -150,74 +154,6 @@ class BackTestBot(object):
                 canceled_ids.append(o['id'])
         return canceled_ids
 
-    def output_order_history(self, path: str, status: str = None):
-        logging.info('Order history')
-        orders = []
-        if status is None:
-            # Output all orders
-            for o in self.__order_history:
-                logging.info(o)
-                orders.append([o['timestamp'], o['side'], o['amount']])
-        else:
-            # Output orders with specific status
-            for o in self.__order_history:
-                if o['status'] == status:
-                    logging.info(
-                        f"{datetime.fromtimestamp(o['timestamp'] / 1000)} {o['side']} ({o['amount']}) at {o['price']}")
-                    orders.append([o['timestamp'], o['side'], o['amount']])
-
-        with open(f'{path}order_history.json', 'w') as outfile:
-            json.dump(orders, outfile)
-
-    def output_performance(self, path: str):
-        # path = f'{self.__result_dir}{datetime.now().timestamp()}/'
-        # os.mkdir(path)
-
-        logging.info(f'Output performance to {path}')
-
-        # Calculate performance model
-        perf = get_performance(self.__order_history)
-
-        # Plot PnL figures
-        fig, (ax1, ax2) = plt.subplots(2)
-        fig.suptitle('PnL Figures')
-        # Plot PnL history
-        ax1.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.pnl_history)
-        ax1.set_title("PnL")
-        ax1.set_xlabel("Time")
-        ax1.tick_params(axis='x', rotation=45)
-        ax1.set_ylabel("PnL")
-        # Plot cumulative PnL history
-        ax2.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.cum_pnl_history)
-        ax2.set_title("Cummulative PnL")
-        ax2.set_xlabel("Time")
-        ax2.tick_params(axis='x', rotation=45)
-        ax2.set_ylabel("Cum PnL")
-
-        plt.tight_layout()
-        plt.savefig(f'{path}pnl_history.svg')
-
-        delattr(perf, 'pnl_history')
-        delattr(perf, 'cum_pnl_history')
-        delattr(perf, 'timestamps')
-
-        # Print performance information
-        # perf = json.dumps(perf.__dict__)
-        with open(f'{path}perf.json', 'w') as outfile:
-            json.dump(perf.__dict__, outfile)
-        logging.info(perf.__dict__)
-
-    def output_buy_hold(self, start_time: datetime, end_time: datetime):
-        logging.info('Buy & Hold')
-        h, i = self.__load_history(self.__pair, self.__interval, start_time)
-        start_price = h.iloc[i]['Open']
-        h, i = self.__load_history(self.__pair, self.__interval, end_time)
-        end_price = h.iloc[i]['Open']
-        buy_hold = {
-            "pnl": self.__balance / start_price * end_price - self.__balance
-        }
-        logging.info(buy_hold)
-
     # Return <History, Index of the current time | Index of the assigned timestamp>
     def __load_history(self, symbol: str, timeframe: str, time: datetime = None):
         key = symbol + timeframe
@@ -259,3 +195,153 @@ class BackTestBot(object):
 
     def get_setting(self):
         return self.__setting
+
+    def output_order_history(self, result_dir: str, status: str = None):
+        print('Order history')
+        orders = []
+        if status is None:
+            for o in self.__order_history:
+                # logging.info(o)
+                orders.append([o['timestamp'], o['side'], o['amount']])
+        else:
+            # Output orders with specific status
+            for o in self.__order_history:
+                if o['status'] == status:
+                    # logging.info(
+                    #     f"{datetime.fromtimestamp(o['timestamp'] / 1000)} {o['side']} ({o['amount']}) at {o['price']}")
+                    orders.append([o['timestamp'], o['side'], o['amount']])
+
+        path = result_dir + self.__raw_subdir
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        with open(f'{path}order_history.json', 'w') as outfile:
+            json.dump(orders, outfile)
+
+    def output_performance(self, result_dir: str, start_time: datetime, end_time: datetime):
+        print(f'Output performance to {result_dir}')
+
+        # Calculate performance model
+        perf = get_performance(self.__order_history)
+
+        # Plot PnL figures
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('PnL Figures')
+        # Plot PnL history
+        ax1.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.pnl_history)
+        ax1.set_title("PnL")
+        ax1.set_xlabel("Time")
+        ax1.tick_params(axis='x', rotation=45)
+        ax1.set_ylabel("PnL")
+        # Plot cumulative PnL history
+        ax2.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.cum_pnl_history)
+        ax2.set_title("Cummulative PnL")
+        ax2.set_xlabel("Time")
+        ax2.tick_params(axis='x', rotation=45)
+        ax2.set_ylabel("Cum PnL")
+
+        plt.tight_layout()
+        plt.savefig(f'{result_dir}pnl_history.svg')
+
+        # Output PnL information
+        pnl_history = []
+        cum_pnl_history = []
+        for i in range(len(perf.timestamps)):
+            pnl_history.append([perf.timestamps[i], perf.pnl_history[i]])
+            cum_pnl_history.append([perf.timestamps[i], perf.cum_pnl_history[i]])
+
+        path = result_dir + self.__raw_subdir
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        with open(f'{path}pnl.json', 'w') as outfile:
+            json.dump(pnl_history, outfile)
+
+        with open(f'{path}cum_pnl.json', 'w') as outfile:
+            json.dump(cum_pnl_history, outfile)
+
+        delattr(perf, 'pnl_history')
+        delattr(perf, 'cum_pnl_history')
+        delattr(perf, 'timestamps')
+
+        # Output performance information
+        print(perf.__dict__)
+        print('Buy & Hold')
+        h, i = self.__load_history(self.__pair, self.__interval, start_time)
+        start_price = h.iloc[i]['Open']
+        h, i = self.__load_history(self.__pair, self.__interval, end_time)
+        end_price = h.iloc[i]['Open']
+
+        perf.buy_hold = self.__balance / start_price * end_price - self.__balance
+
+        buy_hold = {
+            "pnl": perf.buy_hold
+        }
+        print(buy_hold)
+
+        # Store performance information
+        with open(f'{result_dir}performance.json', 'w') as outfile:
+            json.dump(perf.__dict__, outfile, indent=4)
+
+    def output_view(self, result_dir: str, global_dir: str):
+        data_name = self.__pair.replace("/", "") + "_" + self.__interval
+
+        k_line = []
+        with open(f'{self.__data_dir}{data_name}.csv') as k_data_file:
+            csv_reader = csv.reader(k_data_file)
+            header = next(csv_reader)
+            if header is not None:
+                for row in csv_reader:
+                    k_line.append(row)
+
+        k_line = "const K_LINE_DATA = " + json.dumps(k_line)
+        with open(f'{global_dir}{data_name}.js', 'w') as k_line_file:
+            k_line_file.write(k_line)
+
+        raw_path = result_dir + self.__raw_subdir
+        script_path = result_dir + self.__script_subdir
+        if not os.path.isdir(script_path):
+            os.mkdir(script_path)
+
+        # Create scripts
+        with open(f'{raw_path}order_history.json') as orders_file:
+            order_history = json.load(orders_file)
+            with open(f'{script_path}order_history.js', 'w') as orders_script:
+                order_history = "const ORDER_HISTORY = " + json.dumps(order_history)
+                orders_script.write(order_history)
+
+        with open(f'{raw_path}pnl.json') as pnl_file:
+            pnl_history = json.load(pnl_file)
+            with open(f'{script_path}pnl.js', 'w') as pnl_script:
+                pnl_history = "const PNL = " + json.dumps(pnl_history)
+                pnl_script.write(pnl_history)
+
+        with open(f'{raw_path}cum_pnl.json') as cum_pnl_file:
+            cum_pnl_history = json.load(cum_pnl_file)
+            with open(f'{script_path}cum_pnl.js', 'w') as cum_pnl_script:
+                cum_pnl_history = "const CUM_PNL = " + json.dumps(cum_pnl_history)
+                cum_pnl_script.write(cum_pnl_history)
+
+        # Create HTML
+        with open('view/index.html') as template:
+            t = template.read()
+            t = t.replace("{!k_line!}", f'../global/{data_name}.js') \
+                .replace("{!order_history!}", f'{self.__script_subdir}order_history.js') \
+                .replace("{!pnl!}", f'{self.__script_subdir}pnl.js') \
+                .replace("{!cum_pnl!}", f'{self.__script_subdir}cum_pnl.js')
+            with open(f'{result_dir}index.html', 'w') as index_html:
+                index_html.write(t)
+
+    def output_config(self, result_dir: str, config):
+        c = {
+            'strategy': config['strategy'],
+            'setting': self.__setting,
+            'start_time': config['start_time'],
+            'end_time': config['end_time'],
+            'interval': config['interval'],
+            'balance': config['balance'],
+            'pair': config['pair'],
+            'taker_fee': config['taker_fee'],
+            'maker_fee': config['maker_fee']
+        }
+
+        with open(f'{result_dir}config.json', 'w') as config_file:
+            json.dump(c, config_file, indent=4)

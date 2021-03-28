@@ -20,6 +20,8 @@ class PerfInfo:
     def __init__(self):
         # PnL
         self.pnl = 0
+        # Buy & Hold
+        self.buy_hold = 0
         # Max PnL
         self.pnl_max = 0
         # Min PnL

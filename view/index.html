@@ -9,6 +9,7 @@
     <script type="text/javascript" src="{!order_history!}"></script>
     <script type="text/javascript" src="{!pnl!}"></script>
     <script type="text/javascript" src="{!cum_pnl!}"></script>
+    <script type="text/javascript" src="./indicator.js"></script>
 </head>
 <body style="margin: 0;height: 100%">
 <div id="chart" style="height: 100%"></div>
@@ -31,21 +32,15 @@
         for (let i = 0, len = ORDER_HISTORY.length; i < len; i++) {
             MARKS_INDEX.push(ORDER_HISTORY[i][0]);
             if (MARKS[ORDER_HISTORY[i][0]]) {
-                if (MARKS[ORDER_HISTORY[i][0]].side === ORDER_HISTORY[i][1]) {
-                    MARKS[ORDER_HISTORY[i][0]].amount += ORDER_HISTORY[i][2];
-                } else {
-                    if (MARKS[ORDER_HISTORY[i][0]].amount >= ORDER_HISTORY[i][2]) {
-                        MARKS[ORDER_HISTORY[i][0]].amount -= ORDER_HISTORY[i][2]
-                    } else {
-                        MARKS[ORDER_HISTORY[i][0]].side = ORDER_HISTORY[i][1];
-                        MARKS[ORDER_HISTORY[i][0]].amount = ORDER_HISTORY[i][2] - MARKS[ORDER_HISTORY[i][0]].amount;
-                    }
-                }
-            } else {
-                MARKS[ORDER_HISTORY[i][0]] = {
+                MARKS[ORDER_HISTORY[i][0]].push({
                     side: ORDER_HISTORY[i][1],
                     amount: ORDER_HISTORY[i][2],
-                }
+                })
+            } else {
+                MARKS[ORDER_HISTORY[i][0]] = [{
+                    side: ORDER_HISTORY[i][1],
+                    amount: ORDER_HISTORY[i][2],
+                }]
             }
         }
 
@@ -60,6 +55,7 @@
                 volume: Math.ceil(+data[4]),
             }
         });
+
 
         // define pnl and cum_pnl
         // pnl
@@ -79,9 +75,10 @@
             name: 'PnL',
             baseValue: 0,
             plots: [
-                {key: 'cum_pnl', type: 'line'},
+                {key: 'cum_pnl', title: 'CUM_PNL'  ,type: 'line'},
                 {
                     key: 'pnl',
+                    title: 'PNL',
                     type: 'bar',
                     color: (data, options) => {
                         const kLineData = data.currentData.kLineData || {}
@@ -111,9 +108,31 @@
         };
 
 
+        // override SMA
+        chart.overrideTechnicalIndicator({
+            name: 'SMA',
+            calcParams: INDICATOR.sma,
+        });
+
+        // override EMA
+        chart.overrideTechnicalIndicator({
+            name: 'EMA',
+            calcParams: INDICATOR.ema,
+            styles: {
+                line: {
+                    colors: ['#9D65C9', '#2196F3', '#E11D74', '#01C5C4'],
+                },
+            },
+        });
+
+
+
         // draw chart
         chart.setOffsetRightSpace(200);
-        chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);
+        chart.addCustomTechnicalIndicator(pnlTechnicalIndicator);;
+        /*chart.createTechnicalIndicator('MA', true, {id: 'candle_pane'});*/
+        chart.createTechnicalIndicator('EMA', true, {id: 'candle_pane'});
+        chart.createTechnicalIndicator('SMA', true, {id: 'candle_pane'});
         chart.createTechnicalIndicator('PnL', false, {id: "technical_indicator_pane_1"});
         chart.applyNewData(chartDataList);
 
@@ -122,35 +141,36 @@
             const {ctx, kLineData, coordinate, isCandle} = data;
 
             if (isCandle && MARKS_INDEX.includes(kLineData.timestamp)) {
-                ctx.font = '12px';
-                const text = `${(MARKS[kLineData.timestamp].side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(MARKS[kLineData.timestamp].amount.toFixed(5))}`;
-                const textWidth = ctx.measureText(text).width;
+                for(let i = 0, len = MARKS[kLineData.timestamp].length; i < len; i++){
+                    ctx.font = '12px';
+                    const text = `${(MARKS[kLineData.timestamp][i].side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(MARKS[kLineData.timestamp][i].amount.toFixed(5))}`;
+                    const textWidth = ctx.measureText(text).width;
 
-                const startX = coordinate.x;
-                const startY = coordinate.close - 50;
+                    const startX = coordinate.x;
+                    const startY = coordinate.close - 50 * ( i + 1 );
 
-                ctx.beginPath();
-                ctx.moveTo(startX, coordinate.high);
-                ctx.lineTo(startX, startY);
-                ctx.strokeStyle = 'gray';
-                ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(startX, coordinate.high);
+                    ctx.lineTo(startX, startY);
+                    ctx.strokeStyle = 'gray';
+                    ctx.stroke();
 
 
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(startX + 5, startY - 5);
-                ctx.lineTo(startX + 5 + (textWidth / 2), startY - 5);
-                ctx.lineTo(startX + 5 + (textWidth / 2), startY - 20);
-                ctx.lineTo(startX - 5 - (textWidth / 2), startY - 20);
-                ctx.lineTo(startX - 5 - (textWidth / 2), startY - 5);
-                ctx.lineTo(startX - 5, startY - 5);
-                ctx.closePath();
-                ctx.fillStyle = (MARKS[kLineData.timestamp].side === 'buy') ? '#0066ff' : '#FF7F24';
-                ctx.fill();
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#fff';
-                ctx.fillText(text, startX - (textWidth / 2), startY - 12);
-
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(startX + 5, startY - 5);
+                    ctx.lineTo(startX + 5 + (textWidth / 2), startY - 5);
+                    ctx.lineTo(startX + 5 + (textWidth / 2), startY - 20);
+                    ctx.lineTo(startX - 5 - (textWidth / 2), startY - 20);
+                    ctx.lineTo(startX - 5 - (textWidth / 2), startY - 5);
+                    ctx.lineTo(startX - 5, startY - 5);
+                    ctx.closePath();
+                    ctx.fillStyle = (MARKS[kLineData.timestamp][i].side === 'buy') ? '#0066ff' : '#FF7F24';
+                    ctx.fill();
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(text, startX - (textWidth / 2), startY - 12);
+                }
             }
         })
     }

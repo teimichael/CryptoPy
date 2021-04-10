@@ -4,6 +4,5 @@ matplotlib>=3.3.4
 APScheduler>=3.6.3
 python-dateutil>=2.8.1
 ccxt>=1.41.88
-binance-data>=0.1.6
 TA-Lib>=0.4.19
 tenacity>=6.3.1

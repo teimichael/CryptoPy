@@ -1,60 +1,11 @@
 import json
-import os
+import time
 from datetime import datetime
 
+import ccxt
 import pandas as pd
-from binance_data import DataClient
-from dateutil.tz import tzutc
 
-
-def get_raw_data(base: str, quote: str, time_frame: str, start_date: str, end_date: str, raw_data_dir: str,
-                 futures: bool = True):
-    if futures:
-        print('Collecting futures data from Binance')
-    else:
-        print('Collecting spot data from Binance')
-    client = DataClient(futures=futures)
-    pair_list = client.get_binance_pairs(base_currencies=[base], quote_currencies=[quote])
-    print(start_date)
-    store_data = client.kline_data(pair_list, time_frame, start_date=start_date, end_date=end_date,
-                                   storage=['csv', raw_data_dir],
-                                   progress_statements=True)
-
-
-def integrity_check(symbol: str, time_frame: str, raw_data_dir: str):
-    for root, dirs, files in os.walk(f"{raw_data_dir}{time_frame}_data/{symbol}/individual_csvs"):
-        print("Failed integrity check list: ")
-        for name in files:
-            df = pd.read_csv(os.path.join(root, name))
-            # 1h: 25, 15m: 96, 5m: 288
-            if time_frame == '4h' and len(df) != 6:
-                print(name)
-            if time_frame == '1h' and len(df) != 25:
-                print(name)
-            if time_frame == '30m' and len(df) != 48:
-                print(name)
-            elif time_frame == '15m' and len(df) != 96:
-                print(name)
-            elif time_frame == '5m' and len(df) != 288:
-                print(name)
-            elif time_frame == '3m' and len(df) != 480:
-                print(name)
-
-
-def str_to_timestamp(date: str) -> int:
-    d = datetime.strptime(date, '%Y-%m-%d %H:%M:%S').replace(tzinfo=tzutc())
-    return int(d.timestamp() * 1000)
-
-
-def data_cleaning(symbol: str, time_frame: str, raw_data_dir: str, data_dir: str):
-    df = pd.read_csv(f'{raw_data_dir}{time_frame}_data/{symbol}/{symbol}.csv')
-    df = df.drop_duplicates()
-    df['Opened'] = df['Opened'].apply(lambda t: str_to_timestamp(t))
-    df = df.rename(columns={'Opened': 'Timestamp'})
-    if not os.path.exists(data_dir):
-        os.mkdir(data_dir)
-    df.to_csv(f'{data_dir}{symbol}_{time_frame}.csv', index=False)
-
+from core.util import str_to_timestamp
 
 if __name__ == '__main__':
     # Load configuration file
@@ -64,15 +15,43 @@ if __name__ == '__main__':
     # Load data config
     config = config['data']
 
-    # Trading symbol (pair)
-    symbol = config['quote'] + config['base']
+    # Generate symbol
+    symbol = config['quote'] + '/' + config['base']
+    if config['exchange_type'] == 'future' and config['quarterly'] != "":
+        symbol = config['quote'] + config['base'] + "_" + config['quarterly']
 
-    # Get raw data
-    get_raw_data(config['base'], config['quote'], config['time_frame'], config['start_date'], config['end_date'],
-                 config['raw_data_dir'], config['futures'])
+    # Initialize exchange
+    exchange = ccxt.binance({
+        'enableRateLimit': True,
+        'options': {
+            'defaultType': config['exchange_type'],
+        },
+    })
 
-    # Check integrity
-    integrity_check(symbol, config['time_frame'], config['raw_data_dir'])
+    # Load markets
+    markets = exchange.load_markets()
 
-    # Clean data
-    data_cleaning(symbol, config['time_frame'], config['raw_data_dir'], config['clean_data_dir'])
+    start_time = str_to_timestamp(config['start_time'])
+    end_time = min(str_to_timestamp(config['end_time']), int(time.time() * 1000))
+
+    current_time = start_time
+
+    history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+    while current_time < end_time:
+        print(datetime.fromtimestamp(current_time / 1000))
+        rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
+                                                limit=1000,
+                                                params={'startTime': current_time, 'endTime': end_time}),
+                           columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+        # Whether data set exists
+        if len(rec) == 0:
+            raise Exception("No data available.")
+
+        history = pd.concat([history, rec], ignore_index=True)
+        current_time = int(rec.iloc[-1]['Timestamp'])
+
+    history.drop_duplicates(inplace=True, ignore_index=True)
+
+    # Store data
+    history.to_csv(f'{config["output_dir"]}{symbol.replace("/", "")}_{config["interval"]}.csv', index=False)

@@ -8,20 +8,20 @@
   "pair": "BTC/USDT",
   "taker_fee": 0.04,
   "maker_fee": 0.02,
-  "data_dir": "./data/binance/futures/clean/",
+  "data_dir": "./data/binance/futures/",
   "result_dir": "./result/",
   "plot": {
     "ma": [7, 25, 99],
     "ema": [144, 169]
   },
   "data": {
-    "clean_data_dir": "./data/binance/futures/clean/",
-    "raw_data_dir": "./data/binance/futures/",
+    "output_dir": "./data/binance/futures/",
     "base": "USDT",
     "quote": "BTC",
-    "futures": true,
-    "time_frame": "15m",
-    "start_date": "01/01/2017",
-    "end_date": "03/06/2021"
+    "exchange_type": "future",
+    "quarterly": "",
+    "interval": "15m",
+    "start_time": "2017-01-01 00:00:00",
+    "end_time": "2021-04-01 00:00:00"
   }
 }

@@ -43,13 +43,18 @@ chmod u+x setup/setup.sh && sudo ./setup/setup.sh image
 > - backtest_config.json -> 'data': configuration file
 > - data_collector.py: entry point
 
-Collect OHLCV records from Binance. Notice that *start_date* and *end_date* are set with UTC.
+Collect OHLCV records from Binance.
 
-For more information, please refer to [binance_data](https://github.com/uneasyguy/binance_data).
+### Configuration
 
-### Dependency
-
-[binance-data](https://pypi.org/project/binance-data/0.1.6/)
+- **output_dir**: output directory
+- **base**: base currency
+- **quote**: quote currency
+- **exchange_type**: spot, future
+- **quarterly**: quarterly futures (e.g. 210625)
+- **interval**: K-line interval
+- **start_time**: start time
+- **end_time**: end time
 
 ## Strategy
 
@@ -178,6 +183,5 @@ docker run -d -v /opt/logs:/project/logs -v /opt/runtime:/project/runtime crypto
 
 - https://github.com/ccxt/ccxt
 - https://mrjbq7.github.io/ta-lib/
-- https://github.com/uneasyguy/binance_data
 - https://binance-docs.github.io/apidocs/futures/en/#change-log
 - https://github.com/liihuu/KLineChart

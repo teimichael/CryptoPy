@@ -85,8 +85,8 @@ def get_symbol_perf(orders, taker_fee: float, maker_fee: float) -> PerfInfo:
             continue
 
         # Calculate paid commission
-        fee = taker_fee if o['type'] == 'market' else maker_fee / 100
-        perf.commission_paid += o['price'] * o['amount'] * fee
+        fee = taker_fee if o['type'] == 'market' else maker_fee
+        perf.commission_paid += o['price'] * o['amount'] * fee / 100
 
         # First order determines position type
         if position_type is None:

@@ -69,7 +69,7 @@ class RealBot(object):
 
         logging.info("REAL Bot created.")
 
-    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:
+    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None, duplicate=None) -> dict:
         rec = self.__fetch_ohlcv(symbol, timeframe, limit)
         return rec
 

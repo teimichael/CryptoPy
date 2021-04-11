@@ -73,7 +73,7 @@ class BackTestBot(object):
     # Return limited history before current time with duplicated latest time
     # Real bot will return limited history before and including current time
     # TODO symbol and timeframe
-    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 500) -> dict:
+    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 500, duplicate=True) -> dict:
         # Load history
         h, i = self.__load_history(symbol, timeframe)
 
@@ -81,8 +81,9 @@ class BackTestBot(object):
         h = h.iloc[i - limit: i].values.tolist()
 
         # Duplicate last record (due to the unfinished k-line data in real)
-        h.append(h[-1])
-        h = h[1:]
+        if duplicate:
+            h.append(h[-1])
+            h = h[1:]
 
         # Integer timestamp
         for r in h:
@@ -260,7 +261,6 @@ class BackTestBot(object):
         delattr(perf, 'cum_pnl_history')
 
         # Output performance information
-        print('Buy & Hold')
         h, i = self.__load_history(self.__pair, self.__interval, start_time)
         start_price = h.iloc[i]['Open']
         h, i = self.__load_history(self.__pair, self.__interval, end_time)

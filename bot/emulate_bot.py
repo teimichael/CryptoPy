@@ -79,7 +79,7 @@ class EmulateBot(object):
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
            after=after_log(logging.getLogger(__name__), logging.ERROR))
-    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None) -> dict:
+    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = None, duplicate=None) -> dict:
         rec = self.__fetch_ohlcv(symbol, timeframe, limit)
         return rec
 

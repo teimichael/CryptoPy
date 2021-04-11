@@ -4,7 +4,7 @@ precision = 10
 
 
 # TODO funding, fee, rate, etc.
-def get_performance(orders) -> PerfInfo:
+def get_performance(orders, taker_fee: float, maker_fee: float) -> PerfInfo:
     perf = PerfInfo()
     if len(orders) < 1:
         return perf
@@ -20,7 +20,7 @@ def get_performance(orders) -> PerfInfo:
     # Calculate performance by symbol
     perfs = []
     for os in order_s.values():
-        perfs.append(get_symbol_perf(os))
+        perfs.append(get_symbol_perf(os, taker_fee, maker_fee))
 
     # Calculate total performance
     pnl_history = {}
@@ -45,6 +45,7 @@ def get_performance(orders) -> PerfInfo:
         perf.loss += p.loss
         perf.loss_long += p.loss_long
         perf.loss_short += p.loss_short
+        perf.commission_paid += p.commission_paid
 
     perf.percent_profitable = perf.win / (perf.win + perf.loss) if perf.win > 0 else 0
 
@@ -63,11 +64,12 @@ def get_performance(orders) -> PerfInfo:
     perf.pnl_min = min(pnl_h) if len(pnl_h) > 0 else 0
     perf.cum_pnl_max = max(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
     perf.cum_pnl_min = min(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
+
     return perf
 
 
 # Get performance for orders with the same symbol
-def get_symbol_perf(orders) -> PerfInfo:
+def get_symbol_perf(orders, taker_fee: float, maker_fee: float) -> PerfInfo:
     perf = PerfInfo()
 
     # Entry price
@@ -81,6 +83,11 @@ def get_symbol_perf(orders) -> PerfInfo:
     for o in orders:
         if o['status'] != "filled":
             continue
+
+        # Calculate paid commission
+        fee = taker_fee if o['type'] == 'market' else maker_fee / 100
+        perf.commission_paid += o['price'] * o['amount'] * fee
+
         # First order determines position type
         if position_type is None:
             position_type = 'long' if o['side'] == 'buy' else 'short'

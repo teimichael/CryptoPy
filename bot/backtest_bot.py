@@ -40,8 +40,8 @@ class BackTestBot(object):
         self.__pair = config['pair']
 
         # Fee
-        self.__taker_rate = config['taker_fee']
-        self.__maker_rate = config['maker_fee']
+        self.__taker_fee = config['taker_fee']
+        self.__maker_fee = config['maker_fee']
 
         # Order ID Issuer
         self.__order_id = 0
@@ -221,7 +221,7 @@ class BackTestBot(object):
         print(f'Output performance to {result_dir}')
 
         # Calculate performance model
-        perf = get_performance(self.__order_history)
+        perf = get_performance(self.__order_history, self.__taker_fee, self.__maker_fee)
 
         # Plot PnL figures
         fig, (ax1, ax2) = plt.subplots(2)
@@ -260,7 +260,6 @@ class BackTestBot(object):
         delattr(perf, 'cum_pnl_history')
 
         # Output performance information
-        print(perf.__dict__)
         print('Buy & Hold')
         h, i = self.__load_history(self.__pair, self.__interval, start_time)
         start_price = h.iloc[i]['Open']
@@ -269,10 +268,7 @@ class BackTestBot(object):
 
         perf.buy_hold = self.__balance / start_price * end_price - self.__balance
 
-        buy_hold = {
-            "pnl": perf.buy_hold
-        }
-        print(buy_hold)
+        print(perf.__dict__)
 
         # Store performance information
         with open(f'{result_dir}performance.json', 'w') as outfile:

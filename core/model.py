@@ -60,6 +60,8 @@ class PerfInfo:
         self.loss_short = 0
         # Percent Profitable
         self.percent_profitable = 0
+        # Commission Paid
+        self.commission_paid = 0
         # PnL History
         self.pnl_history = []
         # Cumulative PnL History

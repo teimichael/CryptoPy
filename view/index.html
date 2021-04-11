@@ -35,11 +35,13 @@
                 MARKS[ORDER_HISTORY[i][0]].push({
                     side: ORDER_HISTORY[i][1],
                     amount: ORDER_HISTORY[i][2],
+                    symbol: ORDER_HISTORY[i][3]
                 })
             } else {
                 MARKS[ORDER_HISTORY[i][0]] = [{
                     side: ORDER_HISTORY[i][1],
                     amount: ORDER_HISTORY[i][2],
+                    symbol: ORDER_HISTORY[i][3]
                 }]
             }
         }
@@ -142,7 +144,8 @@
             if (isCandle && MARKS_INDEX.includes(kLineData.timestamp)) {
                 for (let i = 0, len = MARKS[kLineData.timestamp].length; i < len; i++) {
                     ctx.font = '12px';
-                    const text = `${(MARKS[kLineData.timestamp][i].side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(MARKS[kLineData.timestamp][i].amount.toFixed(5))}`;
+                    const M = MARKS[kLineData.timestamp][i]
+                    const text = `${(M.side === 'buy') ? 'Buy' : 'Sell'} ${parseFloat(M.amount.toFixed(5))} ${M.symbol}`;
                     const textWidth = ctx.measureText(text).width;
 
                     const startX = coordinate.x;

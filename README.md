@@ -32,6 +32,17 @@ One-click environment setup for Ubuntu (tested on Ubuntu 20.04.2 LTS)
 chmod u+x setup/setup.sh && sudo ./setup/setup.sh local
 ```
 
+or
+
+```
+chmod u+x setup.sh
+.setup_local.sh
+```
+
+or
+
+using commands in *setup_local.sh* manually.
+
 ### Set up the running environment in a Docker image
 
 ```

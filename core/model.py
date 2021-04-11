@@ -64,5 +64,3 @@ class PerfInfo:
         self.pnl_history = []
         # Cumulative PnL History
         self.cum_pnl_history = []
-        # Timestamps
-        self.timestamps = []

@@ -202,14 +202,14 @@ class BackTestBot(object):
         if status is None:
             for o in self.__order_history:
                 # logging.info(o)
-                orders.append([o['timestamp'], o['side'], o['amount']])
+                orders.append([o['timestamp'], o['side'], o['amount'], o['symbol']])
         else:
             # Output orders with specific status
             for o in self.__order_history:
                 if o['status'] == status:
                     # logging.info(
                     #     f"{datetime.fromtimestamp(o['timestamp'] / 1000)} {o['side']} ({o['amount']}) at {o['price']}")
-                    orders.append([o['timestamp'], o['side'], o['amount']])
+                    orders.append([o['timestamp'], o['side'], o['amount'], o['symbol']])
 
         path = result_dir + self.__raw_subdir
         if not os.path.isdir(path):
@@ -227,13 +227,17 @@ class BackTestBot(object):
         fig, (ax1, ax2) = plt.subplots(2)
         fig.suptitle('PnL Figures')
         # Plot PnL history
-        ax1.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.pnl_history)
+        pnl_timestamps = [r[0] for r in perf.pnl_history]
+        pnl_history = [r[1] for r in perf.pnl_history]
+        ax1.plot(pd.to_datetime(pnl_timestamps, unit='ms'), pnl_history)
         ax1.set_title("PnL")
         ax1.set_xlabel("Time")
         ax1.tick_params(axis='x', rotation=45)
         ax1.set_ylabel("PnL")
         # Plot cumulative PnL history
-        ax2.plot(pd.to_datetime(perf.timestamps, unit='ms'), perf.cum_pnl_history)
+        cum_pnl_timestamps = [r[0] for r in perf.cum_pnl_history]
+        cum_pnl_history = [r[1] for r in perf.cum_pnl_history]
+        ax2.plot(pd.to_datetime(cum_pnl_timestamps, unit='ms'), cum_pnl_history)
         ax2.set_title("Cummulative PnL")
         ax2.set_xlabel("Time")
         ax2.tick_params(axis='x', rotation=45)
@@ -243,24 +247,17 @@ class BackTestBot(object):
         plt.savefig(f'{result_dir}pnl_history.svg')
 
         # Output PnL information
-        pnl_history = []
-        cum_pnl_history = []
-        for i in range(len(perf.timestamps)):
-            pnl_history.append([perf.timestamps[i], perf.pnl_history[i]])
-            cum_pnl_history.append([perf.timestamps[i], perf.cum_pnl_history[i]])
-
         path = result_dir + self.__raw_subdir
         if not os.path.isdir(path):
             os.mkdir(path)
         with open(f'{path}pnl.json', 'w') as outfile:
-            json.dump(pnl_history, outfile)
+            json.dump(perf.pnl_history, outfile)
 
         with open(f'{path}cum_pnl.json', 'w') as outfile:
-            json.dump(cum_pnl_history, outfile)
+            json.dump(perf.cum_pnl_history, outfile)
 
         delattr(perf, 'pnl_history')
         delattr(perf, 'cum_pnl_history')
-        delattr(perf, 'timestamps')
 
         # Output performance information
         print(perf.__dict__)

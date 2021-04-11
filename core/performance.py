@@ -9,6 +9,67 @@ def get_performance(orders) -> PerfInfo:
     if len(orders) < 1:
         return perf
 
+    # Classify orders by symbol
+    order_s = {}
+    for o in orders:
+        symbol = o['symbol']
+        if symbol not in order_s.keys():
+            order_s[symbol] = []
+        order_s[symbol].append(o)
+
+    # Calculate performance by symbol
+    perfs = []
+    for os in order_s.values():
+        perfs.append(get_symbol_perf(os))
+
+    # Calculate total performance
+    pnl_history = {}
+    for p in perfs:
+        for pnl in p.pnl_history:
+            if pnl[0] not in pnl_history.keys():
+                pnl_history[pnl[0]] = 0
+            pnl_history[pnl[0]] += pnl[1]
+
+        perf.pnl += p.pnl
+        perf.long_pnl += p.long_pnl
+        perf.short_pnl += p.short_pnl
+        perf.gross_profit += p.gross_profit
+        perf.long_gross_profit += p.long_gross_profit
+        perf.short_gross_profit += p.short_gross_profit
+        perf.gross_loss += p.gross_loss
+        perf.long_gross_loss += p.long_gross_loss
+        perf.short_gross_loss += p.short_gross_loss
+        perf.win += p.win
+        perf.win_long += p.win_long
+        perf.win_short += p.win_short
+        perf.loss += p.loss
+        perf.loss_long += p.loss_long
+        perf.loss_short += p.loss_short
+
+    perf.percent_profitable = perf.win / (perf.win + perf.loss) if perf.win > 0 else 0
+
+    for i in sorted(pnl_history.keys()):
+        perf.pnl_history.append([i, pnl_history[i]])
+
+    if len(perf.pnl_history) > 0:
+        c = 0
+        for i in range(0, len(perf.pnl_history)):
+            c += perf.pnl_history[i][1]
+            perf.cum_pnl_history.append([perf.pnl_history[i][0], c])
+
+    pnl_h = [r[1] for r in perf.pnl_history]
+    pnl_cum_h = [r[1] for r in perf.cum_pnl_history]
+    perf.pnl_max = max(pnl_h) if len(pnl_h) > 0 else 0
+    perf.pnl_min = min(pnl_h) if len(pnl_h) > 0 else 0
+    perf.cum_pnl_max = max(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
+    perf.cum_pnl_min = min(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
+    return perf
+
+
+# Get performance for orders with the same symbol
+def get_symbol_perf(orders) -> PerfInfo:
+    perf = PerfInfo()
+
     # Entry price
     entry_price = 0
     # Total long amount
@@ -54,8 +115,7 @@ def get_performance(orders) -> PerfInfo:
                 perf.long_gross_loss -= pnl
                 perf.loss_long += 1
             # Append to history list
-            perf.pnl_history.append(pnl)
-            perf.timestamps.append(o['timestamp'])
+            perf.pnl_history.append([o['timestamp'], pnl])
 
         elif o['side'] == 'sell' and position_type == 'short':
             # Calculate total value
@@ -88,8 +148,7 @@ def get_performance(orders) -> PerfInfo:
                 perf.short_gross_loss -= pnl
                 perf.loss_short += 1
             # Append to history list
-            perf.pnl_history.append(pnl)
-            perf.timestamps.append(o['timestamp'])
+            perf.pnl_history.append([o['timestamp'], pnl])
         long_amount = round(long_amount, precision)
         short_amount = round(short_amount, precision)
 
@@ -97,8 +156,8 @@ def get_performance(orders) -> PerfInfo:
     if len(perf.pnl_history) > 0:
         c = 0
         for i in range(0, len(perf.pnl_history)):
-            c += perf.pnl_history[i]
-            perf.cum_pnl_history.append(c)
+            c += perf.pnl_history[i][1]
+            perf.cum_pnl_history.append([perf.pnl_history[i][0], c])
 
     # Total
     perf.gross_profit = perf.long_gross_profit + perf.short_gross_profit
@@ -110,9 +169,12 @@ def get_performance(orders) -> PerfInfo:
     perf.loss = perf.loss_long + perf.loss_short
     perf.percent_profitable = perf.win / (perf.win + perf.loss) if perf.win > 0 else 0
 
-    perf.pnl_max = max(perf.pnl_history) if len(perf.pnl_history) > 0 else 0
-    perf.pnl_min = min(perf.pnl_history) if len(perf.pnl_history) > 0 else 0
-    perf.cum_pnl_max = max(perf.cum_pnl_history) if len(perf.cum_pnl_history) > 0 else 0
-    perf.cum_pnl_min = min(perf.cum_pnl_history) if len(perf.cum_pnl_history) > 0 else 0
+    pnl_h = [r[1] for r in perf.pnl_history]
+    pnl_cum_h = [r[1] for r in perf.cum_pnl_history]
+
+    perf.pnl_max = max(pnl_h) if len(pnl_h) > 0 else 0
+    perf.pnl_min = min(pnl_h) if len(pnl_h) > 0 else 0
+    perf.cum_pnl_max = max(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
+    perf.cum_pnl_min = min(pnl_cum_h) if len(pnl_cum_h) > 0 else 0
 
     return perf

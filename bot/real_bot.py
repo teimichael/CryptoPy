@@ -113,6 +113,16 @@ class RealBot(object):
         logging.info(json.dumps(o))
         return o
 
+    # Buy (Good till crossing / Post only)
+    def buy_gtx(self, symbol: str, amount: float, price: float) -> dict:
+        try:
+            o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price, params={'timeInForce': 'GTX'})
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'limit', 'buy', amount, price, params={'timeInForce': 'GTX'})
+        logging.info(json.dumps(o))
+        return o
+
     def sell_limit(self, symbol: str, amount: float, price: float) -> dict:
         try:
             o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price)
@@ -128,6 +138,16 @@ class RealBot(object):
         except ccxt.NetworkError as e:
             logging.info('Network error: ', str(e))
             o = self.exchange.create_order(symbol, 'market', 'sell', amount)
+        logging.info(json.dumps(o))
+        return o
+
+    # Sell (Good till crossing / Post only)
+    def sell_gtx(self, symbol: str, amount: float, price: float) -> dict:
+        try:
+            o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price, params={'timeInForce': 'GTX'})
+        except ccxt.NetworkError as e:
+            logging.info('Network error: ', str(e))
+            o = self.exchange.create_order(symbol, 'limit', 'sell', amount, price, params={'timeInForce': 'GTX'})
         logging.info(json.dumps(o))
         return o
 

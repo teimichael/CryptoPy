@@ -117,6 +117,10 @@ class BackTestBot(object):
         self.__order_id += 1
         return o
 
+    # Buy (Good till crossing / Post only) same with buy limit for backtesting
+    def buy_gtx(self, symbol: str, amount: float, price: float) -> Order:
+        return self.buy_limit(symbol, amount, price)
+
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
         o = Order(self.__order_id, symbol, 'limit', 'sell', amount, price, self.__current_time)
         self.__order_history.append(o)
@@ -132,6 +136,10 @@ class BackTestBot(object):
         self.__order_history.append(o)
         self.__order_id += 1
         return o
+
+    # Buy (Good till crossing / Post only) same with sell limit for backtesting
+    def sell_gtx(self, symbol: str, amount: float, price: float) -> Order:
+        return self.sell_limit(symbol, amount, price)
 
     def get_order(self, o_id: int, symbol: str) -> dict:
         order = None

@@ -133,6 +133,10 @@ class EmulateBot(object):
         logging.info('buy (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
 
+    # Buy (Good till crossing / Post only) same with buy limit for emulating
+    def buy_gtx(self, symbol: str, amount: float, price: float) -> dict:
+        return self.buy_limit(symbol, amount, price)
+
     def sell_limit(self, symbol: str, amount: float, price: float) -> Order:
         o = Order(self.__order_id, symbol, 'limit', 'sell', amount, price)
         self.__order_history.append(o)
@@ -147,6 +151,10 @@ class EmulateBot(object):
         self.__order_id += 1
         logging.info('sell (' + str(amount) + ') at (' + str(ticker['last']) + ')')
         return o
+
+    # Buy (Good till crossing / Post only) same with sell limit for emulating
+    def sell_gtx(self, symbol: str, amount: float, price: float) -> dict:
+        return self.sell_limit(symbol, amount, price)
 
     def get_open_orders(self, symbol: str, limit: int = None):
         orders = self.__fetch_open_orders(symbol, limit)

@@ -61,7 +61,7 @@ class OrderManager(object):
         return r
 
     # get all orders
-    def get_all(self) -> list:
+    def get_all(self) -> dict:
         with open(self.__orders_path) as orders_file:
             orders = json.load(orders_file)
         return orders

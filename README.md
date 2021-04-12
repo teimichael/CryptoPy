@@ -61,7 +61,7 @@ Collect OHLCV records from Binance.
 - **output_dir**: output directory
 - **base**: base currency
 - **quote**: quote currency
-- **exchange_type**: spot, future
+- **exchange_type**: spot, future (USD-M), delivery (COIN-M)
 - **quarterly**: quarterly futures (e.g. 210625)
 - **interval**: K-line interval
 - **start_time**: start time

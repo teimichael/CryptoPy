@@ -17,7 +17,8 @@ if __name__ == '__main__':
 
     # Generate symbol
     symbol = config['quote'] + '/' + config['base']
-    if config['exchange_type'] == 'future' and config['quarterly'] != "":
+    futures = ['future', 'delivery']
+    if config['exchange_type'] in futures and config['quarterly'] != "":
         symbol = config['quote'] + config['base'] + "_" + config['quarterly']
 
     # Initialize exchange
@@ -38,7 +39,7 @@ if __name__ == '__main__':
 
     history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
     while current_time < end_time:
-        print(datetime.fromtimestamp(current_time / 1000))
+        print(datetime.fromtimestamp(current_time/1000))
         rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
                                                 limit=1000,
                                                 params={'startTime': current_time, 'endTime': end_time}),
@@ -52,6 +53,4 @@ if __name__ == '__main__':
         current_time = int(rec.iloc[-1]['Timestamp'])
 
     history.drop_duplicates(inplace=True, ignore_index=True)
-
-    # Store data
     history.to_csv(f'{config["output_dir"]}{symbol.replace("/", "")}_{config["interval"]}.csv', index=False)

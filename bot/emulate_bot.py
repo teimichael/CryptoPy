@@ -107,7 +107,15 @@ class EmulateBot(object):
 
     @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
            after=after_log(logging.getLogger(__name__), logging.ERROR))
-    def get_order(self, o_id: int, symbol: str) -> dict:
+    def get_order_book(self, symbol: str, limit: int = None):
+        if limit is None:
+            return self.exchange.fetch_order_book(symbol=symbol)
+        else:
+            return self.exchange.fetch_order_book(symbol=symbol, limit=limit)
+
+    @retry(stop=stop_after_attempt(5), wait=wait_random(min=1, max=2),
+           after=after_log(logging.getLogger(__name__), logging.ERROR))
+    def get_order(self, o_id, symbol: str) -> dict:
         o = self.exchange.fetch_order(id=o_id, symbol=symbol)
         return o
 

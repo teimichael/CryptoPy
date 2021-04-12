@@ -50,7 +50,8 @@ class OrderManager(object):
 
         return length
 
-    def get_all(self, name: str) -> list:
+    # Get all orders with name
+    def get_orders(self, name: str) -> list:
         r = []
         with open(self.__orders_path) as orders_file:
             orders = json.load(orders_file)
@@ -58,6 +59,12 @@ class OrderManager(object):
                 r = orders[name]
 
         return r
+
+    # get all orders
+    def get_all(self) -> list:
+        with open(self.__orders_path) as orders_file:
+            orders = json.load(orders_file)
+        return orders
 
     @staticmethod
     def sim_order(order):

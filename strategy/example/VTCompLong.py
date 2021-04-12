@@ -166,11 +166,14 @@ class VTCompLong(object):
         # Load settings
         setting = self.__bot.get_setting()
 
+        # Load orders
+        orders = self.__get_all_orders()
+
         # Load current open orders
-        long_term_1_orders = self.__get_orders(self.__LONG_TERM_1)
-        long_term_2_orders = self.__get_orders(self.__LONG_TERM_2)
-        mid_term_1_orders = self.__get_orders(self.__MID_TERM_1)
-        short_term_1_orders = self.__get_orders(self.__SHORT_TERM_1)
+        long_term_1_orders = orders[self.__LONG_TERM_1] if self.__LONG_TERM_1 in orders.keys() else []
+        long_term_2_orders = orders[self.__LONG_TERM_2] if self.__LONG_TERM_2 in orders.keys() else []
+        mid_term_1_orders = orders[self.__MID_TERM_1] if self.__MID_TERM_1 in orders.keys() else []
+        short_term_1_orders = orders[self.__SHORT_TERM_1] if self.__SHORT_TERM_1 in orders.keys() else []
         self.__current_open_order = len(long_term_1_orders) + len(long_term_2_orders) + len(mid_term_1_orders) + len(
             short_term_1_orders)
 
@@ -199,11 +202,14 @@ class VTCompLong(object):
             logging.info("Suspending.")
             return
 
-            # Calculate indicators
+        # Calculate indicators
         i = IndicatorCheck(rec, self.__indicator_length_limit)
 
+        # Load orders
+        all_orders = self.__get_all_orders()
+
         # Long-term 1 trigger (close)
-        orders = self.__get_orders(self.__LONG_TERM_1)
+        orders = all_orders[self.__LONG_TERM_1] if self.__LONG_TERM_1 in all_orders.keys() else []
         if len(orders) > 0:
             if self.__crossed_below(i.ema144, i.ema576):
                 logging.info("Trigger: Close long-term long strategy 1.")
@@ -213,7 +219,7 @@ class VTCompLong(object):
                 self.__clear_order_record(self.__LONG_TERM_1)
 
         # Long-term 2 trigger (close)
-        orders = self.__get_orders(self.__LONG_TERM_2)
+        orders = all_orders[self.__LONG_TERM_2] if self.__LONG_TERM_2 in all_orders.keys() else []
         if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close long-term long strategy 2.")
@@ -223,7 +229,7 @@ class VTCompLong(object):
                 self.__clear_order_record(self.__LONG_TERM_2)
 
         # Short-term trigger (close)
-        orders = self.__get_orders(self.__SHORT_TERM_1)
+        orders = all_orders[self.__SHORT_TERM_1] if self.__SHORT_TERM_1 in all_orders.keys() else []
         if len(orders) > 0:
             if self.__crossed_below(i.close, i.bbUpper * 0.999):
                 logging.info("Trigger: Close short-term long strategy 1.")
@@ -251,8 +257,8 @@ class VTCompLong(object):
     def __create_order_record(self, name: str, order):
         self.__bot.create_order_record(name, order)
 
-    def __get_orders(self, name: str):
-        return self.__bot.get_orders(name)
+    def __get_all_orders(self):
+        return self.__bot.get_all_orders()
 
     def __clear_order_record(self, name: str):
         self.__bot.clear_order_record(name)

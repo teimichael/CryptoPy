@@ -195,6 +195,9 @@ class BackTestBot(object):
         else:
             return []
 
+    def get_all_orders(self):
+        return self.__order_record
+
     def clear_order_record(self, name: str):
         if name in self.__order_record.keys():
             self.__order_record[name] = []

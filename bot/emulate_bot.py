@@ -221,6 +221,9 @@ class EmulateBot(object):
     def get_orders(self, name: str):
         return self.om.get_orders(name)
 
+    def get_all_orders(self):
+        return self.om.get_all()
+
     def clear_order_record(self, name: str):
         self.om.clear(name)
 

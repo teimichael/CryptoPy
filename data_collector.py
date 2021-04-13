@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     # Load markets
     markets = exchange.load_markets()
-    print(markets)
 
     start_time = str_to_timestamp(config['start_time'])
     end_time = min(str_to_timestamp(config['end_time']), int(time.time() * 1000))
@@ -60,10 +59,12 @@ if __name__ == '__main__':
             current_time = int(rec.iloc[-1]['Timestamp'])
 
     else:
+        # COIN-M data
         current_time = end_time
+        last_time = start_time
 
         history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
-        while start_time < current_time:
+        while start_time < current_time and last_time != current_time:
             print(datetime.fromtimestamp(current_time / 1000))
             rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
                                                     limit=1000,
@@ -75,6 +76,7 @@ if __name__ == '__main__':
                 raise Exception("No data available.")
 
             history = pd.concat([history, rec], ignore_index=True).sort_values('Timestamp')
+            last_time = current_time
             current_time = int(rec.iloc[0]['Timestamp'])
 
     history.drop_duplicates(inplace=True, ignore_index=True)

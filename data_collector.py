@@ -21,36 +21,61 @@ if __name__ == '__main__':
     if config['exchange_type'] in futures and config['quarterly'] != "":
         symbol = config['quote'] + config['base'] + "_" + config['quarterly']
 
+    # symbol="ETH-USD-210625"
     # Initialize exchange
-    exchange = ccxt.binance({
+    exchange_param = {
         'enableRateLimit': True,
         'options': {
             'defaultType': config['exchange_type'],
         },
-    })
+    }
+    if config['exchange_market'] == 'okex':
+        exchange = ccxt.okex(exchange_param)
+    else:
+        exchange = ccxt.binance(exchange_param)
 
     # Load markets
     markets = exchange.load_markets()
+    print(markets)
 
     start_time = str_to_timestamp(config['start_time'])
     end_time = min(str_to_timestamp(config['end_time']), int(time.time() * 1000))
 
-    current_time = start_time
+    if config['exchange_type'] != 'delivery':
+        current_time = start_time
 
-    history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
-    while current_time < end_time:
-        print(datetime.fromtimestamp(current_time/1000))
-        rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
-                                                limit=1000,
-                                                params={'startTime': current_time, 'endTime': end_time}),
-                           columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        while current_time < end_time:
+            print(datetime.fromtimestamp(current_time / 1000))
+            rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
+                                                    limit=1000,
+                                                    params={'startTime': current_time, 'endTime': end_time}),
+                               columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
 
-        # Whether data set exists
-        if len(rec) == 0:
-            raise Exception("No data available.")
+            # Whether data set exists
+            if len(rec) == 0:
+                raise Exception("No data available.")
 
-        history = pd.concat([history, rec], ignore_index=True)
-        current_time = int(rec.iloc[-1]['Timestamp'])
+            history = pd.concat([history, rec], ignore_index=True)
+            current_time = int(rec.iloc[-1]['Timestamp'])
+
+    else:
+        current_time = end_time
+
+        history = pd.DataFrame([], columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        while start_time < current_time:
+            print(datetime.fromtimestamp(current_time / 1000))
+            rec = pd.DataFrame(exchange.fetch_ohlcv(symbol, config['interval'],
+                                                    limit=1000,
+                                                    params={'startTime': start_time, 'endTime': current_time}),
+                               columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+            # Whether data set exists
+            if len(rec) == 0:
+                raise Exception("No data available.")
+
+            history = pd.concat([history, rec], ignore_index=True).sort_values('Timestamp')
+            current_time = int(rec.iloc[0]['Timestamp'])
 
     history.drop_duplicates(inplace=True, ignore_index=True)
     history.to_csv(f'{config["output_dir"]}{symbol.replace("/", "")}_{config["interval"]}.csv', index=False)

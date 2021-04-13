@@ -17,13 +17,23 @@ class OrderManager(object):
             with open(self.__orders_path, 'w') as outfile:
                 json.dump(orders, outfile)
 
-    def remove(self, name: str, o_id: int):
+    def remove(self, name: str, o_id):
         with open(self.__orders_path) as orders_file:
             orders = json.load(orders_file)
             if name in orders.keys():
                 orders[name] = [o for o in orders[name] if o['id'] != o_id]
                 with open(self.__orders_path, 'w') as outfile:
                     json.dump(orders, outfile)
+
+    # Replace old order (by id) with new order
+    def replace(self, name: str, o_id, new_order):
+        with open(self.__orders_path) as orders_file:
+            orders = json.load(orders_file)
+            if name in orders.keys():
+                orders[name] = [o for o in orders[name] if o['id'] != o_id]
+                orders[name].append(self.sim_order(new_order))
+            with open(self.__orders_path, 'w') as outfile:
+                json.dump(orders, outfile)
 
     def remove_last(self, name: str):
         with open(self.__orders_path) as orders_file:

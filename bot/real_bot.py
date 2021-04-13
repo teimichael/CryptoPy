@@ -259,6 +259,9 @@ class RealBot(object):
     def get_all_orders(self):
         return self.om.get_all()
 
+    def replace_order(self, name: str, o_id, new_order):
+        self.om.replace(name, o_id, new_order)
+
     def clear_order_record(self, name: str):
         self.om.clear(name)
 

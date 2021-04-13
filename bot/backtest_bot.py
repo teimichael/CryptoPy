@@ -198,6 +198,11 @@ class BackTestBot(object):
     def get_all_orders(self):
         return self.__order_record
 
+    def replace_order(self, name: str, o_id, new_order):
+        if name in self.__order_record.keys():
+            self.__order_record[name] = [o for o in self.__order_record[name] if o['id'] != o_id]
+            self.__order_record[name].append(new_order)
+
     def clear_order_record(self, name: str):
         if name in self.__order_record.keys():
             self.__order_record[name] = []

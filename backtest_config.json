@@ -18,6 +18,7 @@
     "output_dir": "./data/binance/futures/",
     "base": "USDT",
     "quote": "BTC",
+    "exchange_market": "binance",
     "exchange_type": "future",
     "quarterly": "",
     "interval": "15m",

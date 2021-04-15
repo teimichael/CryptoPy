@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from datetime import datetime
 
@@ -14,6 +15,10 @@ if __name__ == '__main__':
 
     # Load data config
     config = config['data']
+
+    # Create output directory
+    if not os.path.exists(config['output_dir']):
+        os.makedirs(config['output_dir'])
 
     # Generate symbol
     symbol = config['quote'] + '/' + config['base']

@@ -22,7 +22,7 @@ if __name__ == "__main__":
         os.mkdir(global_dir)
 
     # Create output directory
-    result_dir = f'{config["result_dir"]}{datetime.now().timestamp()}/'
+    result_dir = f'{config["result_dir"]}{datetime.now()}/'
     os.mkdir(result_dir)
 
     # Set logging
